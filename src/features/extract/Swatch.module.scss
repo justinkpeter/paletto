@@ -1,0 +1,250 @@
+@use "@/styles/mixins" as *;
+
+.swatch {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  cursor: grab;
+  position: relative;
+  user-select: none;
+  animation: swatchIn var(--duration-slow) var(--ease-bounce) var(--delay) both;
+  transition:
+    transform var(--duration-fast) var(--ease-bounce),
+    box-shadow var(--duration-fast) var(--ease-smooth),
+    border-color var(--duration-fast) var(--ease-smooth),
+    opacity var(--duration-fast) var(--ease-smooth);
+  touch-action: none;
+
+  &:active {
+    cursor: grabbing;
+  }
+  &.copied {
+    transform: translateY(-4px) scale(1.05);
+  }
+
+  &.locked {
+    border-color: var(--accent-warm);
+    border-width: 2px;
+    cursor: default;
+  }
+
+  &.dragging {
+    opacity: 0.35;
+    border-style: dashed;
+  }
+
+  &.overlay {
+    box-shadow: var(--shadow-lg);
+    cursor: grabbing;
+    opacity: 1;
+    transform: scale(1.05) rotate(1.5deg);
+  }
+
+  &:hover .handle {
+    opacity: 1;
+  }
+  &:hover .lockBtn {
+    opacity: 1;
+  }
+
+  @include respond-to(sm) {
+    flex: 0 0 100px;
+    scroll-snap-align: start;
+  }
+}
+
+.handle {
+  position: absolute;
+  bottom: 0%;
+  right: var(--space-2);
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-smooth);
+  cursor: grab;
+  display: flex;
+  align-items: center;
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  @include respond-to(sm) {
+    display: none;
+  }
+}
+
+.colorBtn {
+  width: 100%;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+
+  &:hover .color {
+    opacity: 0.88;
+  }
+}
+
+.color {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: var(--radius-sm);
+  background-color: var(--swatch-color);
+  display: block;
+  transition: opacity var(--duration-fast) var(--ease-smooth);
+
+  @include respond-to(sm) {
+    aspect-ratio: unset;
+    height: 72px;
+  }
+}
+
+.hex {
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--text-muted);
+  font-family: Mono, monospace;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.name {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  min-height: 1em;
+  text-align: center;
+}
+
+.lockBtn {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  color: var(--text-muted);
+  opacity: 0;
+  transition:
+    opacity var(--duration-fast) var(--ease-smooth),
+    color var(--duration-fast) var(--ease-smooth);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border-radius: var(--radius-sm);
+
+  &:hover {
+    color: var(--text-primary);
+  }
+
+  @include respond-to(sm) {
+    opacity: 1;
+  }
+}
+
+.lockActive {
+  opacity: 1 !important;
+  color: var(--accent-warm);
+
+  &:hover {
+    color: var(--accent-warm-hover);
+  }
+}
+
+.skeleton {
+  flex: 1;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  aspect-ratio: 1;
+  background: linear-gradient(
+    90deg,
+    var(--border-subtle) 25%,
+    var(--border-default) 50%,
+    var(--border-subtle) 75%
+  );
+  border: 1px solid var(--border-subtle);
+  background-size: 200% 100%;
+  animation:
+    shimmer 1.4s ease-in-out infinite,
+    swatchIn var(--duration-slow) var(--ease-bounce) var(--delay) both;
+
+  @include respond-to(sm) {
+    flex: 0 0 100px;
+    aspect-ratio: unset;
+    height: 120px;
+    scroll-snap-align: start;
+  }
+}
+
+.loading {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  animation: swatchIn var(--duration-slow) var(--ease-bounce) var(--delay) both;
+
+  @include respond-to(sm) {
+    flex: 0 0 100px;
+    scroll-snap-align: start;
+  }
+}
+
+.hexSkeleton {
+  width: 70%;
+  height: 10px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(
+    90deg,
+    var(--border-subtle) 25%,
+    var(--border-default) 50%,
+    var(--border-subtle) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.nameSkeleton {
+  width: 85%;
+  height: 10px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(
+    90deg,
+    var(--border-subtle) 25%,
+    var(--border-default) 50%,
+    var(--border-subtle) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite 0.2s;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes swatchIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,0 +1,48 @@
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin surface {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+}
+
+@mixin elevated {
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+@mixin transition($props...) {
+  transition-property: $props;
+  transition-duration: var(--duration-base);
+  transition-timing-function: var(--ease-smooth);
+}
+
+@mixin respond-to($breakpoint) {
+  @if $breakpoint == sm {
+    @media (max-width: 640px) {
+      @content;
+    }
+  }
+  @if $breakpoint == md {
+    @media (max-width: 768px) {
+      @content;
+    }
+  }
+  @if $breakpoint == lg {
+    @media (max-width: 1024px) {
+      @content;
+    }
+  }
+}

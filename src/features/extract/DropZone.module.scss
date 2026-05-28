@@ -1,0 +1,116 @@
+@use "@/styles/mixins" as *;
+
+.dropzone {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  max-height: 300px;
+  border: 2px dashed var(--border-default);
+  border-radius: var(--radius-lg);
+  position: relative;
+  overflow: hidden;
+  transition:
+    border-color var(--duration-base) var(--ease-smooth),
+    background-color var(--duration-base) var(--ease-smooth),
+    transform var(--duration-base) var(--ease-bounce);
+
+  &:hover {
+    border-color: var(--accent-warm);
+    background-color: var(--bg-surface);
+  }
+
+  &.dragging {
+    border-color: var(--accent-warm);
+    background-color: var(--bg-surface);
+    transform: scale(1.01);
+  }
+
+  &.hasPreview {
+    cursor: default;
+    border-style: solid;
+    border-color: var(--border-subtle);
+  }
+}
+
+.uploadLabel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: color var(--duration-base) var(--ease-smooth);
+
+  &:hover {
+    color: var(--accent-warm);
+  }
+}
+
+.inputHidden {
+  display: none;
+}
+
+.promptText {
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.promptSub {
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+}
+
+.previewWrapper {
+  position: absolute;
+  inset: 0;
+}
+
+.previewImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.resetBtn {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-full);
+  backdrop-filter: blur(8px);
+  letter-spacing: 0.04em;
+  transition: background var(--duration-fast) var(--ease-smooth);
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.7);
+  }
+}
+
+.regenerateBtn {
+  position: absolute;
+  bottom: var(--space-3);
+  right: var(--space-3);
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-full);
+  backdrop-filter: blur(8px);
+  letter-spacing: 0.04em;
+  transition: background var(--duration-fast) var(--ease-smooth);
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.7);
+  }
+}
