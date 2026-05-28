@@ -155,17 +155,24 @@ export function useExtract(): ExtractState {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [regenerate]);
 
-  const handleFile = useCallback((file: File) => {
-    if (!file.type.startsWith("image/")) return;
-    setColors([]);
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const dataUrl = e.target?.result as string;
-      setPreview(dataUrl);
-    };
-    reader.onerror = (e) => console.error("FileReader error", e);
-    reader.readAsDataURL(file);
-  }, []);
+  const handleFile = useCallback(
+    (file: File) => {
+      if (!file.type.startsWith("image/")) return;
+      if (file.size > 5 * 1024 * 1024) {
+        showToast("Please select an image under 5MB");
+        return;
+      }
+      setColors([]);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target?.result as string;
+        setPreview(dataUrl);
+      };
+      reader.onerror = (e) => console.error("FileReader error", e);
+      reader.readAsDataURL(file);
+    },
+    [showToast],
+  );
 
   const handleCopy = useCallback(
     (hex: string, index: number) => {
