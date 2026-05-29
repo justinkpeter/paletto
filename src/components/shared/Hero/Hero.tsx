@@ -4,6 +4,7 @@ import { useExtract } from "@/features/extract/useExtract";
 import DropZone from "@/features/extract/DropZone";
 import SwatchGrid from "@/features/extract/SwatchGrid";
 import ExportBar from "@/features/extract/ExportBar";
+import Toast from "@/components/shared/Toast/Toast";
 import styles from "./Hero.module.scss";
 
 export default function Hero() {
@@ -55,7 +56,7 @@ export default function Hero() {
           </p>
         )}
       </div>
-      {extract.toast && <div className={styles.toast}>{extract.toast}</div>}
+      <Toast message={extract.toast} />
       <ExportBar
         colors={extract.colors}
         visible={extract.colors.length > 0 && !extract.isNaming}

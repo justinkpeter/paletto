@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, ViewTransition } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import styles from "./PalettesGrid.module.scss";
@@ -10,7 +10,9 @@ import {
   ShareIcon,
   TrashIcon,
 } from "@/components/ui/Icon";
+
 import Link from "next/link";
+import BackButton from "@/components/shared/BackButton/BackButton";
 
 type SavedPalette = {
   id: string;
@@ -23,6 +25,8 @@ type SavedPalette = {
 type Props = {
   palettes: SavedPalette[];
 };
+
+const paletteHref = (id: string) => `/palette/${id}`;
 
 function PaletteCard({
   palette,
@@ -67,8 +71,18 @@ function PaletteCard({
 
   return (
     <div className={styles.card}>
+      {!editing && (
+        <Link
+          href={paletteHref(palette.id)}
+          className={styles.cardLink}
+          aria-label={`View ${name}`}
+        />
+      )}
+
       <div className={styles.imageWrapper}>
-        <img src={palette.image_url} alt={name} className={styles.image} />
+        <ViewTransition name={`palette-image-${palette.id}`}>
+          <img src={palette.image_url} alt={name} className={styles.image} />
+        </ViewTransition>
         <button
           className={styles.deleteBtn}
           onClick={() => onDelete(palette.id)}
@@ -113,11 +127,11 @@ function PaletteCard({
         )}
         <div className={styles.metaRight}>
           <Link
-            href={`/palette/${palette.id}`}
+            href={paletteHref(palette.id)}
             className={styles.shareBtn}
             target="_blank"
             rel="noopener noreferrer"
-            title="View shareable page"
+            title="Open in new tab"
           >
             <ShareIcon />
           </Link>
@@ -160,6 +174,10 @@ export default function PalettesGrid({ palettes: initial }: Props) {
 
   return (
     <div className={styles.page}>
+      <div className={styles.backRow}>
+        <BackButton fallback="/" />
+      </div>
+
       <div className={styles.header}>
         <h1>Your palettes</h1>
         <span className={styles.count}>{palettes.length} saved</span>
