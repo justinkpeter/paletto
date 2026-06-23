@@ -1,9 +1,9 @@
-import Hero from "@/components/shared/Hero/Hero";
+import NewHero from "@/components/shared/Hero/NewHero";
 
 export default function Home() {
   return (
     <main>
-      <Hero />
+      <NewHero />
     </main>
   );
 }

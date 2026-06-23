@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.scss";
-import Navbar from "@/components/shared/Navbar/Navbar";
+import NewNavbar from "@/components/shared/Navbar/NewNavbar";
 
 export const metadata: Metadata = {
   title: "Paletto",
@@ -15,7 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en" data-theme="light">
       <body>
-        <Navbar />
+        <NewNavbar />
         {children}
       </body>
     </html>

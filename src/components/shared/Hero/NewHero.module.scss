@@ -1,0 +1,13 @@
+.hero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 100dvh;
+
+  &__colorBlocks {
+    display: flex;
+    gap: 4px;
+    height: 400px;
+  }
+}
