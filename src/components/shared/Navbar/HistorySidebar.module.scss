@@ -1,0 +1,92 @@
+.history {
+  &__empty {
+    font-size: 0.8125rem;
+    color: #bbb;
+    text-align: center;
+    padding: 3rem 1.5rem;
+    line-height: 1.6;
+  }
+
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__entry {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1.5px solid transparent;
+    border-radius: 12px;
+    background: #fff;
+    cursor: pointer;
+    transition:
+      border-color 150ms ease,
+      background 150ms ease;
+
+    &:hover:not(:disabled) {
+      border-color: #d0d0cc;
+      background: #fafaf8;
+    }
+
+    &--active {
+      border-color: #1a1a1a;
+      cursor: default;
+      background: #fff;
+    }
+  }
+
+  &__swatches {
+    display: flex;
+    height: 48px;
+
+    &:hover &-swatch {
+      flex: 0.5;
+    }
+  }
+
+  &__swatches-swatch,
+  &__swatch {
+    flex: 1;
+    display: block;
+    transition: flex 0.1s ease;
+
+    &:first-of-type {
+      border-top-left-radius: 12px;
+      border-bottom-left-radius: 12px;
+    }
+
+    &:last-of-type {
+      border-top-right-radius: 12px;
+      border-bottom-right-radius: 12px;
+    }
+
+    &:hover {
+      flex: 2;
+    }
+  }
+
+  &__clear-btn {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #e0e0dc;
+    border-radius: 7px;
+    background: none;
+    font-size: 0.8125rem;
+    color: #999;
+    cursor: pointer;
+    transition:
+      background 150ms ease,
+      color 150ms ease,
+      border-color 150ms ease;
+
+    &:hover {
+      background: #ebebeb;
+      color: #555;
+      border-color: #ccc;
+    }
+  }
+}
