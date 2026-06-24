@@ -15,7 +15,7 @@ export default function PaletteInit() {
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (e.code === "Space" && e.target === document.body) {
+      if (e.code === "Space") {
         e.preventDefault();
         regenerate();
       }
