@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.scss";
 import NewNavbar from "@/components/shared/Navbar/NewNavbar";
+import PaletteInit from "@/components/PaletteInit";
+import { PaletteHistoryProvider } from "@/features/history/PaletteHistoryContext";
 
 export const metadata: Metadata = {
   title: "Paletto",
@@ -15,8 +17,11 @@ export default function RootLayout({
   return (
     <html lang="en" data-theme="light">
       <body>
-        <NewNavbar />
-        {children}
+        <PaletteHistoryProvider>
+          <NewNavbar />
+          <PaletteInit />
+          {children}
+        </PaletteHistoryProvider>
       </body>
     </html>
   );
