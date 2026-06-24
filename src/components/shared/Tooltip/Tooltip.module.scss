@@ -1,0 +1,41 @@
+.tooltip {
+  position: relative;
+
+  &:hover .tooltip__box {
+    opacity: 1;
+  }
+}
+
+.tooltip__box {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(black, 0.75);
+  color: white;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  height: fit-content;
+  min-height: 12px;
+
+  .tooltip--bottom & {
+    top: calc(100% + 1rem);
+  }
+}
+
+.tooltip__text {
+  color: white;
+}
+
+.tooltip__shortcut {
+  color: rgba(white, 0.8);
+  font-size: 12px;
+}
