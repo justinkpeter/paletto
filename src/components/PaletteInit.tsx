@@ -1,17 +1,38 @@
 "use client";
 
 import { useEffect, useCallback } from "react";
-import { usePaletteStore } from "@/store/paletteStore";
+import { useParams, useRouter } from "next/navigation";
 import { useStore } from "zustand";
+import { usePaletteStore, slugFromBlocks } from "@/store/paletteStore";
 
 export default function PaletteInit() {
+  const router = useRouter();
+  const params = useParams();
+  const slug = params?.palette as string | undefined;
+
   const regenerate = usePaletteStore((s) => s.regenerate);
+  const hydrateFromSlug = usePaletteStore((s) => s.hydrateFromSlug);
+  const blocks = usePaletteStore((s) => s.blocks);
   const { undo, redo } = useStore(usePaletteStore.temporal);
 
   useEffect(() => {
-    regenerate();
+    if (slug) {
+      hydrateFromSlug(slug);
+    } else {
+      regenerate();
+    }
     usePaletteStore.temporal.getState().clear();
   }, []);
+
+  // push slug to URL whenever blocks change
+  useEffect(() => {
+    if (blocks.length === 0) return;
+    const newSlug = slugFromBlocks(blocks);
+    const currentSlug = window.location.pathname.replace("/", "");
+    if (newSlug !== currentSlug) {
+      router.replace(`/${newSlug}`);
+    }
+  }, [blocks]);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
