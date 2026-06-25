@@ -1,0 +1,66 @@
+"use client";
+
+import { createContext, useContext, useState } from "react";
+
+export enum SidebarPanel {
+  METHOD = "method",
+  HISTORY = "history",
+  ACCESSIBILITY = "accessibility",
+  EXTRACT = "extract",
+}
+
+const SIDEBAR_ORDER: SidebarPanel[] = [
+  SidebarPanel.METHOD,
+  SidebarPanel.HISTORY,
+  SidebarPanel.ACCESSIBILITY,
+  SidebarPanel.EXTRACT,
+];
+
+type SidebarContextType = {
+  open: (id: SidebarPanel) => void;
+  close: (id: SidebarPanel) => void;
+  toggle: (id: SidebarPanel) => void;
+  isOpen: (id: SidebarPanel) => boolean;
+  orderedOpenSidebars: SidebarPanel[];
+};
+
+const SidebarContext = createContext<SidebarContextType | null>(null);
+
+export function SidebarProvider({ children }: { children: React.ReactNode }) {
+  const [openSidebars, setOpenSidebars] = useState<Set<SidebarPanel>>(
+    new Set(),
+  );
+
+  const open = (id: SidebarPanel) =>
+    setOpenSidebars((prev) => new Set(prev).add(id));
+
+  const close = (id: SidebarPanel) =>
+    setOpenSidebars((prev) => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+
+  const toggle = (id: SidebarPanel) =>
+    openSidebars.has(id) ? close(id) : open(id);
+
+  const isOpen = (id: SidebarPanel) => openSidebars.has(id);
+
+  const orderedOpenSidebars = SIDEBAR_ORDER.filter((id) =>
+    openSidebars.has(id),
+  );
+
+  return (
+    <SidebarContext.Provider
+      value={{ open, close, toggle, isOpen, orderedOpenSidebars }}
+    >
+      {children}
+    </SidebarContext.Provider>
+  );
+}
+
+export function useSidebar() {
+  const ctx = useContext(SidebarContext);
+  if (!ctx) throw new Error("useSidebar must be used within SidebarProvider");
+  return ctx;
+}
