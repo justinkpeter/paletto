@@ -4,14 +4,12 @@ import styles from "./Toolbar.module.scss";
 
 export default function Toolbar({
   className,
-  visible,
   onRemove,
   locked,
   onToggleLock,
   onExpand,
 }: {
   className: string;
-  visible: boolean;
   onRemove?: () => void;
   locked: boolean;
   onToggleLock?: () => void;
@@ -19,27 +17,27 @@ export default function Toolbar({
 }) {
   const bem = new BemBuilder("toolbar", styles);
   return (
-    <div className={`${bem.block(visible ? "visible" : "")} ${className}`}>
+    <div className={`${bem.block()} ${className}`}>
       <button
         className={bem.element("button")}
         title="Remove"
         onClick={onRemove}
       >
-        <XIcon />
+        <XIcon size={18} />
       </button>
       <button
         className={bem.element("button")}
         title={locked ? "Unlock" : "Lock"}
         onClick={onToggleLock}
       >
-        {locked ? <LockIcon /> : <LockOpenIcon />}
+        {locked ? <LockIcon size={18} /> : <LockOpenIcon size={18} />}
       </button>
       <button
         className={bem.element("button")}
         title="Shades"
         onClick={onExpand}
       >
-        <SwatchBookIcon />
+        <SwatchBookIcon size={18} />
       </button>
     </div>
   );

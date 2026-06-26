@@ -2,7 +2,6 @@ import chroma from "chroma-js";
 import styles from "./ColorBlock.module.scss";
 import Toolbar from "./Toolbar";
 import { BemBuilder } from "@/lib/BemBuilder";
-import { useState } from "react";
 import { LockIcon } from "lucide-react";
 
 export default function ColorBlock({
@@ -22,28 +21,19 @@ export default function ColorBlock({
 }) {
   const bem = new BemBuilder("colorBlock", styles);
   const textColor = chroma(color).luminance() > 0.5 ? "#000000" : "#FFFFFF";
-  const [hovered, setHovered] = useState(false);
 
   return (
     <div
       className={bem.block()}
-      style={{
-        backgroundColor: color,
-        color: textColor,
-        filter: visionFilter,
-      }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      style={{ backgroundColor: color, color: textColor, filter: visionFilter }}
     >
       <Toolbar
         className={bem.element("toolbar")}
-        visible={hovered}
         onRemove={onRemove}
         locked={locked}
         onToggleLock={onToggleLock}
         onExpand={onExpand}
       />
-
       <div className={bem.element("bottom")}>
         <div className={bem.element("lock")} data-locked={locked}>
           <LockIcon size={16} />
