@@ -7,10 +7,24 @@
   min-width: 0;
   height: 100%;
 
+  // Start collapsed and invisible
   flex-grow: 0;
+  opacity: 0;
 
+  transition:
+    flex-grow 350ms cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 300ms ease;
+
+  // Entrance: expand and fade in
   &[data-mounted="true"] {
     flex-grow: 1;
+    opacity: 1;
+  }
+
+  // Exit: collapse and fade out (removing overrides mounted)
+  &[data-removing="true"] {
+    flex-grow: 0;
+    opacity: 0;
   }
 
   > [class*="divider"] {
