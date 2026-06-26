@@ -7,9 +7,11 @@ import { BemBuilder } from "@/lib/BemBuilder";
 export default function ShadesBlock({
   color,
   onCollapse,
+  onSelectShade,
 }: {
   color: string;
   onCollapse: () => void;
+  onSelectShade: (shade: string) => void;
 }) {
   const bem = new BemBuilder("shadesBlock", styles);
   const shades = generateShades(color);
@@ -26,7 +28,8 @@ export default function ShadesBlock({
             <div
               key={i}
               className={styles.shadesBlock__swatch}
-              style={{ background: shade }}
+              style={{ background: shade, cursor: "pointer" }}
+              onClick={() => onSelectShade(shade)}
             >
               <span
                 className={styles.shadesBlock__hex}

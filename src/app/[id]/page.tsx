@@ -29,6 +29,7 @@ export default function Home() {
     canRemove,
     removeBlock,
     toggleLock,
+    updateBlockColor,
   } = usePalette();
   const visionMode = usePaletteStore((s) => s.visionMode ?? "normal");
   const expandedId = usePaletteStore((s) => s.expandedId);
@@ -97,6 +98,10 @@ export default function Home() {
                   <ShadesBlock
                     color={block.color}
                     onCollapse={() => setExpandedId(null)}
+                    onSelectShade={(shade) => {
+                      updateBlockColor(block.id, shade);
+                      setExpandedId(null);
+                    }}
                   />
                 ) : (
                   <ColorBlock

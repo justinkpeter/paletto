@@ -2,8 +2,15 @@ import { useStore } from "zustand";
 import { usePaletteStore } from "@/store/paletteStore";
 
 export function usePalette() {
-  const { blocks, setBlocks, regenerate, addBlock, removeBlock, toggleLock } =
-    usePaletteStore();
+  const {
+    blocks,
+    setBlocks,
+    regenerate,
+    addBlock,
+    removeBlock,
+    toggleLock,
+    updateBlockColor,
+  } = usePaletteStore();
 
   const { undo, redo, pastStates, futureStates } = useStore(
     usePaletteStore.temporal,
@@ -22,5 +29,6 @@ export function usePalette() {
     redo,
     canUndo: pastStates.length > 0,
     canRedo: futureStates.length > 0,
+    updateBlockColor,
   };
 }

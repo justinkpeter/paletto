@@ -37,6 +37,7 @@ export type PaletteStore = {
   removeBlock: (id: string) => void;
   toggleLock: (id: string) => void;
   setExpandedId: (id: string | null) => void;
+  updateBlockColor: (id: string, color: string) => void;
 };
 
 export const slugFromBlocks = (blocks: ColorItem[]): string =>
@@ -132,6 +133,13 @@ export const usePaletteStore = create<PaletteStore>()(
           b.id === id ? { ...b, locked: !b.locked } : b,
         );
         set({ blocks: next });
+      },
+
+      updateBlockColor: (id, color) => {
+        const next = get().blocks.map((b) =>
+          b.id === id ? { ...b, color } : b,
+        );
+        set({ blocks: next, history: [next, ...get().history] });
       },
     }),
     {
