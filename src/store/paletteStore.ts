@@ -99,7 +99,7 @@ export const usePaletteStore = create<PaletteStore>()(
           const newBlocks = state.blocks.map((block) => {
             if (block.locked) return block;
             const [newBlock] = createBlocks(scheme, mood, autoScheme, 1);
-            return { ...newBlock, locked: false };
+            return { ...block, color: newBlock.color };
           });
           return {
             blocks: newBlocks,

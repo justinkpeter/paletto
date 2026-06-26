@@ -89,12 +89,17 @@ export function useExtract(): ExtractState {
         }
 
         setTimeout(() => {
+          const currentBlocks = usePaletteStore.getState().blocks;
           setBlocks(
-            named.map((c, i) => ({
-              id: `color-block-${i}`,
-              color: c.hex,
-              locked: false,
-            })),
+            named.map((c, i) => {
+              const existing = currentBlocks[i];
+              if (existing?.locked) return existing; // preserve locked block entirely
+              return {
+                id: existing?.id ?? `color-block-${i}`, // reuse existing id
+                color: c.hex,
+                locked: false,
+              };
+            }),
           );
         }, 0);
 
