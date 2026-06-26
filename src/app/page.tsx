@@ -1,15 +1,8 @@
-"use client";
+import { redirect } from "next/navigation";
+import { generatePalette } from "@/components/shared/Hero/colorUtils";
 
-import { DragDropProvider } from "@dnd-kit/react";
-import { RestrictToWindow } from "@dnd-kit/dom/modifiers";
-import { move } from "@dnd-kit/helpers";
-import { usePalette } from "@/hooks/usePalette";
-import styles from "./Home.module.scss";
-import ColorBlock from "@/components/shared/Hero/ColorBlock";
-import HistorySidebar from "@/components/shared/Navbar/HistorySidebar";
-
-export default function Home() {
-  const { blocks, setBlocks } = usePalette();
-
-  return null;
+export default function RootPage() {
+  const colors = generatePalette("analogous", "any", true, 5);
+  const slug = colors.map((c) => c.replace("#", "").toLowerCase()).join("-");
+  redirect(`/${slug}`);
 }
