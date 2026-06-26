@@ -9,7 +9,6 @@ import ColorBlock from "@/components/shared/Hero/ColorBlock";
 import HistorySidebar from "@/components/shared/Navbar/HistorySidebar";
 import MethodSidebar from "@/features/sidebar/MethodSidebar/MethodSidebar";
 import AccessibilitySidebar from "@/features/sidebar/AccessibilitySidebar/AccessibilitySidebar";
-import ExtractSidebar from "@/features/sidebar/ExtractSidebar/ExtractSidebar";
 import { usePaletteStore } from "@/store/paletteStore";
 import { VISION_FILTERS } from "@/components/shared/Hero/colorUtils";
 import { VisionFilters } from "@/components/shared/Hero/VisionFilters";
@@ -17,6 +16,7 @@ import AddBlockDivider from "@/components/shared/Hero/AddBlockDivider";
 import SortableBlock from "@/components/shared/Hero/SortableBlock";
 import ShadesBlock from "@/components/shared/Hero/ShadesBlock";
 import { useState, useRef } from "react";
+import ExtractSidebar from "@/features/sidebar/ExtractSidebar/ExtractSidebar";
 
 const REMOVE_DURATION = 350;
 

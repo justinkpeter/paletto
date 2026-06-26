@@ -16,6 +16,12 @@ export type ColorItem = {
   locked: boolean;
 };
 
+export type ExtractEntry = {
+  id: string;
+  preview: string; // data URL
+  colors: string[]; // hex values
+};
+
 export type ColorBlockState = Pick<PaletteStore, "blocks">;
 
 export type PaletteStore = {
@@ -38,6 +44,8 @@ export type PaletteStore = {
   toggleLock: (id: string) => void;
   setExpandedId: (id: string | null) => void;
   updateBlockColor: (id: string, color: string) => void;
+  extractHistory: ExtractEntry[];
+  addExtractEntry: (entry: ExtractEntry) => void;
 };
 
 export const slugFromBlocks = (blocks: ColorItem[]): string =>
@@ -141,7 +149,14 @@ export const usePaletteStore = create<PaletteStore>()(
         );
         set({ blocks: next, history: [next, ...get().history] });
       },
+
+      extractHistory: [],
+      addExtractEntry: (entry) =>
+        set((s) => ({
+          extractHistory: [entry, ...s.extractHistory].slice(0, 5),
+        })),
     }),
+
     {
       partialize: (state) => ({ blocks: state.blocks }),
     },

@@ -1,5 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { getPaletteSync } from "colorthief";
+import { usePaletteStore } from "@/store/paletteStore";
+import { toast } from "sonner";
 
 export type ColorEntry = {
   id: string;
@@ -14,13 +16,10 @@ export type ExtractState = {
   preview: string | null;
   colors: ColorEntry[];
   isNaming: boolean;
-  toast: string | null;
-  copiedIndex: number | null;
   imgRef: React.RefObject<HTMLImageElement | null>;
   inputRef: React.RefObject<HTMLInputElement | null>;
   handleImageLoad: () => void;
   handleFile: (file: File) => void;
-  handleCopy: (hex: string, index: number) => void;
   handleDragOver: (e: React.DragEvent<HTMLDivElement>) => void;
   handleDragLeave: (e: React.DragEvent<HTMLDivElement>) => void;
   handleDrop: (e: React.DragEvent<HTMLDivElement>) => void;
@@ -37,13 +36,15 @@ export function useExtract(): ExtractState {
   const [preview, setPreview] = useState<string | null>(null);
   const [colors, setColors] = useState<ColorEntry[]>([]);
   const [isNaming, setIsNaming] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [quality, setQuality] = useState(6);
+
   const inputRef = useRef<HTMLInputElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
   const colorsRef = useRef<ColorEntry[]>([]);
   const previewRef = useRef<string | null>(null);
+
+  const addExtractEntry = usePaletteStore((s) => s.addExtractEntry);
+  const setBlocks = usePaletteStore((s) => s.setBlocks);
 
   useEffect(() => {
     colorsRef.current = colors;
@@ -53,18 +54,16 @@ export function useExtract(): ExtractState {
     previewRef.current = preview;
   }, [preview]);
 
-  const showToast = useCallback((message: string) => {
-    setToast(message);
-    setTimeout(() => setToast(null), 2000);
-  }, []);
-
   const nameColors = useCallback(
     async (indicesToName: number[], hexes: string[]) => {
+      const extractToastId = toast.loading("Extracting palette…");
+
       setColors((prev) =>
         prev.map((c, i) =>
           indicesToName.includes(i) ? { ...c, isLoading: true } : c,
         ),
       );
+
       try {
         const res = await fetch("/api/name-colors", {
           method: "POST",
@@ -72,19 +71,37 @@ export function useExtract(): ExtractState {
           body: JSON.stringify({ colors: hexes }),
         });
         const data = await res.json();
-        setColors((prev) =>
-          prev.map((c, i) => {
-            const nameIndex = indicesToName.indexOf(i);
-            if (nameIndex === -1) return c;
-            return {
-              ...c,
-              name: data.names[nameIndex] ?? "",
-              isLoading: false,
-            };
-          }),
-        );
+
+        const named = colorsRef.current.map((c, i) => {
+          const nameIndex = indicesToName.indexOf(i);
+          if (nameIndex === -1) return c;
+          return { ...c, name: data.names[nameIndex] ?? "", isLoading: false };
+        });
+
+        setColors(named);
+
+        if (previewRef.current) {
+          addExtractEntry({
+            id: crypto.randomUUID(),
+            preview: previewRef.current,
+            colors: named.map((c) => c.hex),
+          });
+        }
+
+        setTimeout(() => {
+          setBlocks(
+            named.map((c, i) => ({
+              id: `color-block-${i}`,
+              color: c.hex,
+              locked: false,
+            })),
+          );
+        }, 0);
+
+        toast.success("Palette ready", { id: extractToastId });
       } catch (e) {
         console.error("Naming failed", e);
+        toast.error("Extraction failed", { id: extractToastId });
         setColors((prev) =>
           prev.map((c, i) =>
             indicesToName.includes(i) ? { ...c, isLoading: false } : c,
@@ -94,7 +111,7 @@ export function useExtract(): ExtractState {
         setIsNaming(false);
       }
     },
-    [],
+    [addExtractEntry, setBlocks],
   );
 
   const extractColors = useCallback(
@@ -141,48 +158,20 @@ export function useExtract(): ExtractState {
     const newQuality = Math.floor(Math.random() * 10) + 1;
     setQuality(newQuality);
     extractColors(newQuality, colorsRef.current);
-    showToast("New palette generated");
-  }, [extractColors, showToast]);
+  }, [extractColors]);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.code === "Space" && e.target === document.body) {
-        e.preventDefault();
-        regenerate();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [regenerate]);
-
-  const handleFile = useCallback(
-    (file: File) => {
-      if (!file.type.startsWith("image/")) return;
-      if (file.size > 5 * 1024 * 1024) {
-        showToast("Please select an image under 5MB");
-        return;
-      }
-      setColors([]);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const dataUrl = e.target?.result as string;
-        setPreview(dataUrl);
-      };
-      reader.onerror = (e) => console.error("FileReader error", e);
-      reader.readAsDataURL(file);
-    },
-    [showToast],
-  );
-
-  const handleCopy = useCallback(
-    (hex: string, index: number) => {
-      navigator.clipboard.writeText(hex);
-      setCopiedIndex(index);
-      showToast(`${hex} copied`);
-      setTimeout(() => setCopiedIndex(null), 1500);
-    },
-    [showToast],
-  );
+  const handleFile = useCallback((file: File) => {
+    if (!file.type.startsWith("image/")) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast("Please select an image under 5MB");
+      return;
+    }
+    setColors([]);
+    const reader = new FileReader();
+    reader.onload = (e) => setPreview(e.target?.result as string);
+    reader.onerror = (e) => console.error("FileReader error", e);
+    reader.readAsDataURL(file);
+  }, []);
 
   const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -243,13 +232,10 @@ export function useExtract(): ExtractState {
     preview,
     colors,
     isNaming,
-    toast,
-    copiedIndex,
     imgRef,
     inputRef,
     handleImageLoad,
     handleFile,
-    handleCopy,
     handleDragOver,
     handleDragLeave,
     handleDrop,

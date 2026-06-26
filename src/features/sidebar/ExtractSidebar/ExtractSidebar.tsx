@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useEffect } from "react";
+import { useMemo } from "react";
 import { ImagePlusIcon, UploadIcon, XIcon, RefreshCwIcon } from "lucide-react";
 import { BemBuilder } from "@/lib/BemBuilder";
 import { usePaletteStore } from "@/store/paletteStore";
@@ -13,6 +13,8 @@ export default function ExtractSidebar() {
   const bem = useMemo(() => new BemBuilder("extract", styles), []);
   const { isOpen, toggle } = useSidebar();
   const setBlocks = usePaletteStore((s) => s.setBlocks);
+  const extractHistory = usePaletteStore((s) => s.extractHistory);
+  const blocks = usePaletteStore((s) => s.blocks);
 
   const {
     isDragging,
@@ -30,18 +32,21 @@ export default function ExtractSidebar() {
     regenerate,
   } = useExtract();
 
-  // Sync extracted colors into palette store
-  useEffect(() => {
-    if (colors.length === 0) return;
-    const ready = colors.every((c) => !c.isLoading);
-    if (!ready) return;
+  const handleRestoreEntry = (hexes: string[]) => {
     setBlocks(
-      colors.map((c, i) => ({
+      hexes.map((hex, i) => ({
         id: `color-block-${i}`,
-        color: c.hex,
+        color: hex,
+        locked: false,
       })),
     );
-  }, [colors, setBlocks]);
+  };
+
+  const isActiveEntry = (entryColors: string[]) =>
+    entryColors.length === blocks.length &&
+    entryColors.every(
+      (hex, i) => hex.toLowerCase() === blocks[i]?.color.toLowerCase(),
+    );
 
   return (
     <Sidebar
@@ -50,9 +55,9 @@ export default function ExtractSidebar() {
       title="Extract"
       icon={<ImagePlusIcon size={16} />}
     >
+      {/* Upload / current image */}
       <div className={bem.element("section")}>
         <p className={bem.element("label")}>IMAGE</p>
-
         {preview ? (
           <div className={bem.element("preview")}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -83,19 +88,18 @@ export default function ExtractSidebar() {
             onDragLeave={handleDragLeave}
             role="button"
             tabIndex={0}
-            aria-label="Upload image to extract colors"
+            aria-label="Upload image"
             onKeyDown={(e) => e.key === "Enter" && inputRef.current?.click()}
           >
             <UploadIcon size={20} className={bem.element("upload-icon")} />
             <span className={bem.element("dropzone-primary")}>
-              Drop an image or click to upload
+              Drop or click to upload
             </span>
             <span className={bem.element("dropzone-secondary")}>
               PNG, JPG, WEBP · Max 5MB
             </span>
           </div>
         )}
-
         <input
           ref={inputRef}
           type="file"
@@ -106,33 +110,9 @@ export default function ExtractSidebar() {
         />
       </div>
 
-      {colors.length > 0 && (
-        <div className={bem.element("section")}>
-          <p className={bem.element("label")}>EXTRACTED</p>
-          <div className={bem.element("swatches")}>
-            {colors.map((c, i) => (
-              <div key={c.id} className={bem.element("swatch")}>
-                <div
-                  className={bem.element("swatch-color")}
-                  style={{ background: c.hex }}
-                />
-                <div className={bem.element("swatch-info")}>
-                  {c.isLoading ? (
-                    <span className={bem.element("swatch-loading")}>…</span>
-                  ) : (
-                    <span className={bem.element("swatch-name")}>{c.name}</span>
-                  )}
-                  <span className={bem.element("swatch-hex")}>{c.hex}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
+      {/* Actions for current image */}
       {preview && (
         <div className={bem.element("section")}>
-          <p className={bem.element("label")}>ACTIONS</p>
           <button
             className={bem.element("action-btn")}
             onClick={regenerate}
@@ -148,6 +128,39 @@ export default function ExtractSidebar() {
             <UploadIcon size={14} />
             Upload new image
           </button>
+        </div>
+      )}
+
+      {/* Extract history */}
+      {extractHistory.length > 0 && (
+        <div className={bem.element("section")}>
+          <p className={bem.element("label")}>RECENT</p>
+          <div className={bem.element("history")}>
+            {extractHistory.map((entry) => (
+              <button
+                key={entry.id}
+                className={bem.element(
+                  "entry",
+                  isActiveEntry(entry.colors) && "active",
+                )}
+                onClick={() => handleRestoreEntry(entry.colors)}
+              >
+                <div className={bem.element("entry-thumb")}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={entry.preview} alt="" />
+                </div>
+                <div className={bem.element("entry-swatches")}>
+                  {entry.colors.map((hex) => (
+                    <div
+                      key={hex}
+                      className={bem.element("entry-swatch")}
+                      style={{ backgroundColor: hex }}
+                    />
+                  ))}
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </Sidebar>
