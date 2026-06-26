@@ -33,6 +33,7 @@ export default function ColorBlock({
         locked={locked}
         onToggleLock={onToggleLock}
         onExpand={onExpand}
+        color={color}
       />
       <div className={bem.element("bottom")}>
         <div className={bem.element("lock")} data-locked={locked}>

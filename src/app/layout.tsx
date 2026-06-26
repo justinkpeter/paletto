@@ -3,6 +3,7 @@ import "./globals.scss";
 import NewNavbar from "@/components/shared/Navbar/NewNavbar";
 import PaletteInit from "@/components/PaletteInit";
 import { SidebarProvider } from "@/features/sidebar/SidebarContext";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "Paletto",
@@ -21,6 +22,7 @@ export default function RootLayout({
           <NewNavbar />
           <PaletteInit />
           {children}
+          <Toaster position="bottom-center" />
         </SidebarProvider>
       </body>
     </html>
