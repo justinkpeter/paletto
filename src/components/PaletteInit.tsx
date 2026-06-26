@@ -8,7 +8,7 @@ import { usePaletteStore, slugFromBlocks } from "@/store/paletteStore";
 export default function PaletteInit() {
   const router = useRouter();
   const params = useParams();
-  const slug = params?.palette as string | undefined;
+  const slug = params?.id as string | undefined;
 
   const regenerate = usePaletteStore((s) => s.regenerate);
   const hydrateFromSlug = usePaletteStore((s) => s.hydrateFromSlug);
@@ -17,7 +17,10 @@ export default function PaletteInit() {
 
   useEffect(() => {
     if (slug) {
-      hydrateFromSlug(slug);
+      const currentSlug = slugFromBlocks(usePaletteStore.getState().blocks);
+      if (currentSlug !== slug) {
+        hydrateFromSlug(slug);
+      }
     } else {
       regenerate();
     }

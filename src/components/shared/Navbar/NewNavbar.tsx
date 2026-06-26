@@ -3,34 +3,53 @@
 import Link from "next/link";
 import styles from "./NewNavbar.module.scss";
 import Tooltip from "../Tooltip/Tooltip";
-import { HistoryIcon, Redo2Icon, Undo2Icon } from "lucide-react";
+import {
+  EyeIcon,
+  HistoryIcon,
+  ImagePlusIcon,
+  PencilSparkles,
+  Redo2Icon,
+  Undo2Icon,
+} from "lucide-react";
 import { usePalette } from "@/hooks/usePalette";
-import { usePaletteHistory } from "@/features/history/PaletteHistoryContext";
+import { BemBuilder } from "@/lib/BemBuilder";
+import { SidebarPanel, useSidebar } from "@/features/sidebar/SidebarContext";
 
 export default function NewNavbar() {
-  const { undo, redo, canUndo, canRedo } = usePalette();
-  const { historyOpen, toggleHistory } = usePaletteHistory();
+  const { undo, redo, canUndo, canRedo, regenerate } = usePalette();
+  const { isOpen, toggle } = useSidebar();
+
   const isMac = /Mac|iPhone|iPad|iPod/.test(navigator.platform);
 
+  const bem = new BemBuilder("navbar", styles);
+
   return (
-    <nav className={styles.navbar}>
-      <div className={styles.navbar__left}>
-        <Link href="/" className={styles.navbar__wordMark}>
+    <nav className={bem.block()}>
+      <div className={bem.element("left")}>
+        <Link href="/" className={bem.element("wordMark")}>
           Paletto
         </Link>
         <Tooltip text="Generate" shortcut={"spacebar"}>
-          <div className={styles.navbar__spaceBarWrapper}>
-            Press
-            <div className={styles.spaceBar}>spacebar</div>
-            to generate
+          <div className={bem.element("spaceBarWrapper")}>
+            <span className={bem.element("spaceBarWrapper", "desktopHint")}>
+              Press
+              <div className={styles.spaceBar}>spacebar</div>
+              to generate
+            </span>
+            <span
+              className={bem.element("spaceBarWrapper", "mobileHint")}
+              onClick={() => regenerate()}
+            >
+              Tap to generate
+            </span>
           </div>
         </Tooltip>
       </div>
-      <div className={styles.navbar__right}>
-        <div className={styles.historyButtons}>
+      <div className={bem.element("right")}>
+        <div className={bem.element("historyButtons")}>
           <Tooltip text="Undo" shortcut={isMac ? "⌘ + z" : "Ctrl+Z"}>
             <button
-              className={styles.navbar__button}
+              className={bem.element("button")}
               onClick={() => undo()}
               disabled={!canUndo}
               title={"Undo"}
@@ -40,7 +59,7 @@ export default function NewNavbar() {
           </Tooltip>
           <Tooltip text="Redo" shortcut={isMac ? "⌘ + shift + z" : "Ctrl+Y"}>
             <button
-              className={styles.navbar__button}
+              className={bem.element("button")}
               onClick={() => redo()}
               disabled={!canRedo}
               title={"Redo"}
@@ -49,13 +68,33 @@ export default function NewNavbar() {
             </button>
           </Tooltip>
         </div>
-        <div className={styles.navbar__divider} />
-        <button
-          onClick={toggleHistory}
-          className={`${styles.iconBtn} ${historyOpen ? styles.active : ""}`}
-        >
-          <HistoryIcon />
-        </button>
+        <div className={bem.element("divider")} />
+        <div className={bem.element("actionButtons")}>
+          <button
+            onClick={() => toggle(SidebarPanel.METHOD)}
+            className={`${styles.iconBtn} ${isOpen(SidebarPanel.METHOD) ? styles.active : ""} ${bem.element("button")}`}
+          >
+            <PencilSparkles />
+          </button>
+          <button
+            onClick={() => toggle(SidebarPanel.HISTORY)}
+            className={`${styles.iconBtn} ${isOpen(SidebarPanel.HISTORY) ? styles.active : ""} ${bem.element("button")}`}
+          >
+            <HistoryIcon />
+          </button>
+          <button
+            onClick={() => toggle(SidebarPanel.ACCESSIBILITY)}
+            className={`${styles.iconBtn} ${isOpen(SidebarPanel.ACCESSIBILITY) ? styles.active : ""} ${bem.element("button")}`}
+          >
+            <EyeIcon />
+          </button>
+          <button
+            onClick={() => toggle(SidebarPanel.EXTRACT)}
+            className={`${styles.iconBtn} ${isOpen(SidebarPanel.EXTRACT) ? styles.active : ""} ${bem.element("button")}`}
+          >
+            <ImagePlusIcon />
+          </button>
+        </div>
       </div>
     </nav>
   );

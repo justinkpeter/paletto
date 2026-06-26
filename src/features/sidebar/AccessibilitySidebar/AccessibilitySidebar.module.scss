@@ -1,0 +1,144 @@
+.accessibility {
+  &__section {
+    padding-bottom: 1.5rem;
+  }
+
+  &__section-label {
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--color-text-muted, #aaa);
+    margin: 0 0 0.875rem;
+    text-transform: uppercase;
+  }
+
+  // ---- Text contrast grid ----
+
+  &__contrast-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  &__contrast-card {
+    border-radius: 16px;
+    padding: 8px 8px 8px 12px;
+    display: flex;
+    flex-direction: column;
+    aspect-ratio: 1.35;
+  }
+
+  &__contrast-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    // margin-bottom: auto;
+  }
+
+  &__aa-sample {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+    color: inherit;
+  }
+
+  &__contrast-hex {
+    font-size: 0.72rem;
+    font-family: var(--font-mono, monospace);
+    font-weight: 500;
+    color: inherit;
+    margin-top: 0.5rem;
+    opacity: 0.9;
+  }
+
+  &__contrast-ratio {
+    font-size: 0.72rem;
+    font-weight: 400;
+    color: inherit;
+    opacity: 0.75;
+    margin-top: 2px;
+  }
+
+  // ---- Contrast badge (AA / AAA / fail) ----
+
+  .contrast-badge {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding: 3px 8px;
+    border-radius: 999px;
+    color: inherit;
+    white-space: nowrap;
+    flex-shrink: 0;
+    opacity: 0.85;
+
+    &[data-level="fail"] {
+      opacity: 0.5;
+    }
+  }
+
+  // ---- Adjacent contrast list ----
+
+  &__adjacent-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__adjacent-row {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    background: var(--color-surface-subtle, #f5f4f2);
+    border-radius: 999px;
+    padding: 0.5rem 0.875rem 0.5rem 0.5rem;
+  }
+
+  &__adjacent-ratio {
+    flex: 1;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--color-text, #1a1a18);
+    text-align: right;
+  }
+
+  // ---- Adjacent badge (warn / fail) ----
+
+  .adjacent-badge {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    flex-shrink: 0;
+
+    &[data-warn="true"] {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    &[data-warn="false"] {
+      background: #fce8e8;
+      color: #c0392b;
+    }
+  }
+
+  // ---- Half circle swatch ----
+  &__half-circle {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    flex-shrink: 0;
+
+    span {
+      flex: 1;
+      height: 100%;
+      display: block;
+    }
+  }
+}

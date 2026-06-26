@@ -1,3 +1,5 @@
+@use "@/styles/mixins" as *;
+
 $sidebar-width: 280px;
 
 .sidebar {
@@ -37,6 +39,10 @@ $sidebar-width: 280px;
       gap: 0.5rem;
       color: #555;
     }
+  }
+
+  @include respond-to(md) {
+    padding-top: 4rem;
   }
 
   &__title {
@@ -80,5 +86,27 @@ $sidebar-width: 280px;
     padding: 0.75rem 1.125rem;
     border-top: 1px solid #e4e4e0;
     flex-shrink: 0;
+  }
+
+  @include respond-to(md) {
+    position: static; // stays in flow, stacks vertically
+    width: 100dvw; // full width always
+    height: 0; // collapsed by default
+    padding-top: 0;
+    will-change: height;
+    transition: height 280ms cubic-bezier(0.4, 0, 0.2, 1); // 👈 height not width
+    background: #fff;
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.12);
+    flex-shrink: 0; // 👈 don't steal space from color blocks when collapsed
+
+    &--open {
+      width: 100dvw;
+      height: 45dvh;
+    }
+
+    &__inner {
+      width: 100dvw;
+      height: 100%;
+    }
   }
 }

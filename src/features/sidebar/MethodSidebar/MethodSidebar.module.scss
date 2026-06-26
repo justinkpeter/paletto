@@ -1,0 +1,109 @@
+.method {
+  &__section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  &__label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: #aaa;
+    padding: 0 0.25rem;
+    margin: 0;
+  }
+
+  // -- Schemes --
+
+  &__schemes {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  &__scheme {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 0.75rem;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    background: #fff;
+    cursor: pointer;
+    text-align: left;
+    transition:
+      border-color 250ms ease,
+      background 150ms ease;
+
+    &:hover:not(:disabled) {
+      background: #fafaf8;
+      border-color: #e0e0dc;
+    }
+
+    &--active {
+      border-color: #1a1a1a;
+      background: #fff;
+    }
+  }
+
+  &__scheme-label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #1a1a1a;
+    flex: 1;
+  }
+
+  &__scheme-description {
+    font-size: 0.8rem;
+    color: #aaa;
+  }
+
+  &__scheme-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #1a1a1a;
+    flex-shrink: 0;
+    margin-left: 0.25rem;
+  }
+
+  // -- Moods --
+
+  &__moods {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+  }
+
+  &__mood {
+    padding: 0.375rem 0.75rem;
+    border: 1.5px solid #e8e8e4;
+    border-radius: 999px;
+    background: #fff;
+    font-size: 0.8125rem;
+    color: #555;
+    cursor: pointer;
+    transition:
+      border-color 200ms ease,
+      background 150ms ease,
+      color 150ms ease;
+
+    &:hover:not(&--active) {
+      border-color: #ccc;
+      background: #fafaf8;
+      color: #1a1a1a;
+    }
+
+    &--active {
+      border-color: #1a1a1a;
+      background: #1a1a1a;
+      color: #fff;
+    }
+  }
+}

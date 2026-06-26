@@ -1,0 +1,35 @@
+@use "@/styles/mixins" as *;
+
+.sortableBlock {
+  flex: 1;
+  position: relative;
+  display: flex;
+  min-width: 0;
+  height: 100%;
+
+  flex-grow: 0;
+
+  &[data-mounted="true"] {
+    flex-grow: 1;
+  }
+
+  > [class*="divider"] {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    translate: 50% 0;
+  }
+
+  @include respond-to(md) {
+    overflow: visible;
+
+    > [class*="divider"] {
+      right: auto;
+      left: 0;
+      top: auto;
+      bottom: 0;
+      translate: 0 50%;
+    }
+  }
+}

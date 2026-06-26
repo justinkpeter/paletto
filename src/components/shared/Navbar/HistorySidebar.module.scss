@@ -7,24 +7,45 @@
     line-height: 1.6;
   }
 
+  &__list-wrapper {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+  }
+
   &__list {
     list-style: none;
     margin: 0;
-    padding: 0;
+    padding: 0 0 72px 0;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    height: 100%;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  &__blur {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    pointer-events: none;
   }
 
   &__entry {
     width: 100%;
     padding: 0.5rem;
-    border: 1.5px solid transparent;
+    border: 2px solid transparent;
     border-radius: 12px;
     background: #fff;
     cursor: pointer;
     transition:
-      border-color 150ms ease,
+      border-color 350ms ease,
       background 150ms ease;
 
     &:hover:not(:disabled) {
@@ -41,7 +62,7 @@
 
   &__swatches {
     display: flex;
-    height: 48px;
+    height: 56px;
 
     &:hover &-swatch {
       flex: 0.5;
@@ -55,13 +76,13 @@
     transition: flex 0.1s ease;
 
     &:first-of-type {
-      border-top-left-radius: 12px;
-      border-bottom-left-radius: 12px;
+      border-top-left-radius: 8px;
+      border-bottom-left-radius: 8px;
     }
 
     &:last-of-type {
-      border-top-right-radius: 12px;
-      border-bottom-right-radius: 12px;
+      border-top-right-radius: 8px;
+      border-bottom-right-radius: 8px;
     }
 
     &:hover {

@@ -1,73 +1,68 @@
 "use client";
 
 import { useMemo } from "react";
-import { useStore } from "zustand";
-import type { TemporalState } from "zundo";
-import { usePaletteStore, type PaletteStore } from "@/store/paletteStore";
-import { usePaletteHistory } from "@/features/history/PaletteHistoryContext";
+import {
+  ColorItem,
+  slugFromBlocks,
+  usePaletteStore,
+} from "@/store/paletteStore";
 import { Clock } from "lucide-react";
 import { BemBuilder } from "@/lib/BemBuilder";
 
 import styles from "./HistorySidebar.module.scss";
 import Sidebar from "../Sidebar/Sidebar";
-
-function useTemporalStore<T>(
-  selector: (state: TemporalState<PaletteStore>) => T,
-): T {
-  return useStore(usePaletteStore.temporal, selector);
-}
+import ProgressiveBlur from "@/components/ui/ProgressiveBlur";
+import { SidebarPanel, useSidebar } from "@/features/sidebar/SidebarContext";
 
 export default function HistorySidebar() {
   const bem = useMemo(() => new BemBuilder("history", styles), []);
 
-  const { historyOpen, closeHistory } = usePaletteHistory();
+  const { isOpen, toggle } = useSidebar();
 
-  const pastStates = useTemporalStore((s) => s.pastStates);
-  const undo = useTemporalStore((s) => s.undo);
-  const clear = useTemporalStore((s) => s.clear);
-  const currentBlocks = usePaletteStore((s) => s.blocks);
+  const history = usePaletteStore((s) => s.history);
+  const blocks = usePaletteStore((s) => s.blocks);
+  const activeSlug = slugFromBlocks(blocks);
 
-  const allEntries = [
-    currentBlocks,
-    ...[...pastStates].reverse().map((s) => s.blocks),
-  ];
+  const { pause, resume } = usePaletteStore.temporal.getState();
 
-  const footer =
-    pastStates.length > 0 ? (
-      <button className={bem.element("clear-btn")} onClick={clear}>
-        Clear history
-      </button>
-    ) : null;
+  const handleRestore = (blocks: ColorItem[]) => {
+    pause();
+    usePaletteStore.setState({ blocks });
+    resume();
+  };
 
   return (
     <Sidebar
-      isOpen={historyOpen}
-      onClose={closeHistory}
+      isOpen={isOpen(SidebarPanel.HISTORY)}
+      onClose={() => toggle(SidebarPanel.HISTORY)}
       title="History"
       icon={<Clock size={16} />}
-      footer={footer}
     >
-      {allEntries.length === 0 ? (
+      {history.length === 0 ? (
         <p className={bem.element("empty")}>
           Generate a palette to start building history.
         </p>
       ) : (
         <ul className={bem.element("list")}>
-          {allEntries.map((blocks, index) => {
-            const isActive = index === 0;
+          {history.map((blocks, i) => {
+            const slug = slugFromBlocks(blocks);
+            const isActive = slug === activeSlug;
             return (
-              <li key={index}>
+              <li key={`${slug}-${i}`}>
                 <button
                   className={bem.element("entry", isActive && "active")}
-                  onClick={() => !isActive && undo(index)}
+                  onClick={() => {
+                    if (isActive) return;
+                    handleRestore(blocks);
+                  }}
                   disabled={isActive}
                 >
                   <div className={bem.element("swatches")}>
-                    {blocks?.map((block) => (
+                    {blocks.map((block) => (
                       <div
                         key={block.id}
                         className={bem.element("swatch")}
-                        style={{ backgroundColor: `${block.color}` }}
+                        style={{ backgroundColor: block.color }}
                       />
                     ))}
                   </div>
@@ -75,6 +70,12 @@ export default function HistorySidebar() {
               </li>
             );
           })}
+          <ProgressiveBlur
+            direction="to-bottom"
+            blur={12}
+            fadeSize="40%"
+            className={bem.element("blur")}
+          />
         </ul>
       )}
     </Sidebar>

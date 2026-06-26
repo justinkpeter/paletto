@@ -32,7 +32,11 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
   );
 
   const open = (id: SidebarPanel) =>
-    setOpenSidebars((prev) => new Set(prev).add(id));
+    setOpenSidebars((prev) => {
+      const isMobile = window.matchMedia("(max-width: 1200px)").matches;
+      if (isMobile) return new Set([id]);
+      return new Set(prev).add(id);
+    });
 
   const close = (id: SidebarPanel) =>
     setOpenSidebars((prev) => {

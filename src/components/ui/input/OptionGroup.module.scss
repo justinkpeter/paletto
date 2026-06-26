@@ -1,0 +1,127 @@
+.option-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+
+  &__label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: #aaa;
+    padding: 0 0.25rem;
+    margin: 0;
+  }
+
+  // -- Options container --
+
+  &__options {
+    display: flex;
+
+    &--list {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    &--pills {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+      gap: 0.5rem;
+    }
+  }
+
+  // -- Individual option --
+
+  &__option {
+    cursor: pointer;
+    text-align: left;
+    transition:
+      border-color 200ms ease,
+      background 150ms ease,
+      color 150ms ease,
+      transform 150ms ease;
+
+    // list variant
+    .option-group__options--list & {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      border: 1.5px solid transparent;
+      border-radius: 14px;
+      background: #fff;
+
+      &:hover:not(.option-group__option--active) {
+        border-color: #ccc;
+        background: #fafaf8;
+      }
+
+      &.option-group__option--active {
+        border-color: #1a1a1a;
+        border-width: 2px;
+      }
+
+      &:hover {
+        transform: scale(1.02);
+      }
+    }
+
+    // pills variant
+    .option-group__options--pills & {
+      padding: 0.6rem 0.875rem;
+      border: 2px solid transparent;
+      border-radius: 8px;
+      background: #fff;
+      font-size: 0.8125rem;
+      color: #555;
+      text-align: center;
+
+      &:hover:not(.option-group__option--active) {
+        border-color: transparent;
+        background: #ebebeb;
+        color: #1a1a1a;
+      }
+
+      &.option-group__option--active {
+        border-color: rgba(#1a1a1a, 1);
+        color: #1a1a1a;
+        font-weight: 500;
+        background: #fff;
+      }
+    }
+  }
+
+  &__option-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  &__option-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    line-height: 1.2;
+
+    .option-group__options--pills & {
+      font-size: 0.75rem;
+      font-weight: 400;
+      color: inherit;
+    }
+  }
+
+  &__option-description {
+    font-size: 0.75rem;
+    color: #aaa;
+    line-height: 1.3;
+  }
+
+  &__option-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #1a1a1a;
+    flex-shrink: 0;
+  }
+}
