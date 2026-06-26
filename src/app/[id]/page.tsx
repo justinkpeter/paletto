@@ -35,7 +35,6 @@ export default function Home() {
   const expandedId = usePaletteStore((s) => s.expandedId);
   const setExpandedId = usePaletteStore((s) => s.setExpandedId);
 
-  // Seed with initial ids — existing blocks are never in "unmounted" state
   const [mountedIds, setMountedIds] = useState<Set<string>>(
     () => new Set(blocks.map((b) => b.id)),
   );

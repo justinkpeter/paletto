@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useRef, useCallback, useEffect, useState } from "react";
 import { getPaletteSync } from "colorthief";
 import { usePaletteStore } from "@/store/paletteStore";
 import { toast } from "sonner";
@@ -6,19 +6,15 @@ import { toast } from "sonner";
 export type ColorEntry = {
   id: string;
   hex: string;
-  name: string;
   locked: boolean;
-  isLoading: boolean;
 };
 
 export type ExtractState = {
   isDragging: boolean;
   preview: string | null;
   colors: ColorEntry[];
-  isNaming: boolean;
   imgRef: React.RefObject<HTMLImageElement | null>;
   inputRef: React.RefObject<HTMLInputElement | null>;
-  handleImageLoad: () => void;
   handleFile: (file: File) => void;
   handleDragOver: (e: React.DragEvent<HTMLDivElement>) => void;
   handleDragLeave: (e: React.DragEvent<HTMLDivElement>) => void;
@@ -33,150 +29,131 @@ export type ExtractState = {
 
 export function useExtract(): ExtractState {
   const [isDragging, setIsDragging] = useState(false);
-  const [preview, setPreview] = useState<string | null>(null);
   const [colors, setColors] = useState<ColorEntry[]>([]);
-  const [isNaming, setIsNaming] = useState(false);
-  const [quality, setQuality] = useState(6);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
+  const extractImgRef = useRef<HTMLImageElement | null>(null);
   const colorsRef = useRef<ColorEntry[]>([]);
-  const previewRef = useRef<string | null>(null);
 
+  const preview = usePaletteStore((s) => s.activeExtractPreview);
+  const setPreview = usePaletteStore((s) => s.setActiveExtractPreview);
   const addExtractEntry = usePaletteStore((s) => s.addExtractEntry);
   const setBlocks = usePaletteStore((s) => s.setBlocks);
+  const blocks = usePaletteStore((s) => s.blocks);
 
   useEffect(() => {
     colorsRef.current = colors;
   }, [colors]);
 
-  useEffect(() => {
-    previewRef.current = preview;
-  }, [preview]);
+  const doExtract = useCallback(
+    (img: HTMLImageElement, existingColors?: ColorEntry[]) => {
+      const toastId = toast.loading("Generating palette…");
+      setTimeout(() => {
+        try {
+          const poolSize = Math.floor(Math.random() * 6) + 8;
+          const raw = getPaletteSync(img, { colorCount: poolSize, quality: 1 });
+          if (!raw) {
+            toast.error("Extraction failed", { id: toastId });
+            return;
+          }
 
-  const nameColors = useCallback(
-    async (indicesToName: number[], hexes: string[]) => {
-      const extractToastId = toast.loading("Extracting palette…");
+          const shuffled = [...raw].sort(() => Math.random() - 0.5);
+          const picked = shuffled.slice(0, 6);
+          const newHexes = picked.map((c) => c.hex().toUpperCase());
 
-      setColors((prev) =>
-        prev.map((c, i) =>
-          indicesToName.includes(i) ? { ...c, isLoading: true } : c,
-        ),
-      );
+          const base = existingColors?.length
+            ? existingColors
+            : Array(blocks.length).fill(null);
+          const merged: ColorEntry[] = base.map(
+            (existing: ColorEntry | null, i) => {
+              if (existing?.locked) return existing;
+              return {
+                id: crypto.randomUUID(),
+                hex: newHexes[i] ?? newHexes[0],
+                locked: false,
+              };
+            },
+          );
 
-      try {
-        const res = await fetch("/api/name-colors", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ colors: hexes }),
-        });
-        const data = await res.json();
+          setColors(merged);
 
-        const named = colorsRef.current.map((c, i) => {
-          const nameIndex = indicesToName.indexOf(i);
-          if (nameIndex === -1) return c;
-          return { ...c, name: data.names[nameIndex] ?? "", isLoading: false };
-        });
+          const currentPreview =
+            usePaletteStore.getState().activeExtractPreview;
+          if (currentPreview) {
+            addExtractEntry({
+              id: crypto.randomUUID(),
+              preview: currentPreview,
+              colors: merged.map((c) => c.hex),
+            });
+          }
 
-        setColors(named);
-
-        if (previewRef.current) {
-          addExtractEntry({
-            id: crypto.randomUUID(),
-            preview: previewRef.current,
-            colors: named.map((c) => c.hex),
-          });
-        }
-
-        setTimeout(() => {
           const currentBlocks = usePaletteStore.getState().blocks;
           setBlocks(
-            named.map((c, i) => {
+            merged.map((c, i) => {
               const existing = currentBlocks[i];
-              if (existing?.locked) return existing; // preserve locked block entirely
+              if (existing?.locked) return existing;
               return {
-                id: existing?.id ?? `color-block-${i}`, // reuse existing id
+                id: existing?.id ?? `color-block-${i}`,
                 color: c.hex,
                 locked: false,
               };
             }),
           );
-        }, 0);
 
-        toast.success("Palette ready", { id: extractToastId });
-      } catch (e) {
-        console.error("Naming failed", e);
-        toast.error("Extraction failed", { id: extractToastId });
-        setColors((prev) =>
-          prev.map((c, i) =>
-            indicesToName.includes(i) ? { ...c, isLoading: false } : c,
-          ),
-        );
-      } finally {
-        setIsNaming(false);
-      }
+          toast.success("Palette ready", { id: toastId });
+        } catch (e) {
+          console.error("Color extraction failed", e);
+          toast.error("Extraction failed", { id: toastId });
+        }
+      }, 50);
     },
-    [addExtractEntry, setBlocks],
+    [addExtractEntry, setBlocks, blocks],
   );
 
-  const extractColors = useCallback(
-    (q: number, existingColors?: ColorEntry[]) => {
-      const img = imgRef.current;
-      if (!img) return;
-      try {
-        const raw = getPaletteSync(img, { colorCount: 6, quality: q });
-        if (!raw) return;
-        const newHexes = raw.map((c) => c.hex().toUpperCase());
-        const indicesToName: number[] = [];
-        const hexesToName: string[] = [];
-        const merged: ColorEntry[] = (
-          existingColors ?? Array(6).fill(null)
-        ).map((existing: ColorEntry | null, i) => {
-          if (existing?.locked) return existing;
-          const hex = newHexes[i] ?? newHexes[0];
-          indicesToName.push(i);
-          hexesToName.push(hex);
-          return {
-            id: crypto.randomUUID(),
-            hex,
-            name: "",
-            locked: false,
-            isLoading: true,
-          };
-        });
-        setIsNaming(true);
-        setColors(merged);
-        nameColors(indicesToName, hexesToName);
-      } catch (e) {
-        console.error("Color extraction failed", e);
-      }
+  const loadAndExtract = useCallback(
+    (dataUrl: string, existingColors?: ColorEntry[]) => {
+      const img = new Image();
+      img.onload = () => {
+        extractImgRef.current = img;
+        doExtract(img, existingColors);
+      };
+      img.onerror = () => toast.error("Failed to load image");
+      img.src = dataUrl;
     },
-    [nameColors],
+    [doExtract],
   );
-
-  const handleImageLoad = useCallback(() => {
-    extractColors(quality);
-  }, [extractColors, quality]);
 
   const regenerate = useCallback(() => {
-    if (!previewRef.current) return;
-    const newQuality = Math.floor(Math.random() * 10) + 1;
-    setQuality(newQuality);
-    extractColors(newQuality, colorsRef.current);
-  }, [extractColors]);
-
-  const handleFile = useCallback((file: File) => {
-    if (!file.type.startsWith("image/")) return;
-    if (file.size > 5 * 1024 * 1024) {
-      toast("Please select an image under 5MB");
-      return;
+    const currentPreview = usePaletteStore.getState().activeExtractPreview;
+    if (!currentPreview) return;
+    if (extractImgRef.current) {
+      doExtract(extractImgRef.current, colorsRef.current);
+    } else {
+      loadAndExtract(currentPreview, colorsRef.current);
     }
-    setColors([]);
-    const reader = new FileReader();
-    reader.onload = (e) => setPreview(e.target?.result as string);
-    reader.onerror = (e) => console.error("FileReader error", e);
-    reader.readAsDataURL(file);
-  }, []);
+  }, [doExtract, loadAndExtract]);
+
+  const handleFile = useCallback(
+    (file: File) => {
+      if (!file.type.startsWith("image/")) return;
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Please select an image under 5MB");
+        return;
+      }
+      extractImgRef.current = null;
+      setColors([]);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target?.result as string;
+        setPreview(dataUrl);
+        loadAndExtract(dataUrl);
+      };
+      reader.onerror = (e) => console.error("FileReader error", e);
+      reader.readAsDataURL(file);
+    },
+    [setPreview, loadAndExtract],
+  );
 
   const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -207,10 +184,11 @@ export function useExtract(): ExtractState {
   );
 
   const handleReset = useCallback(() => {
+    extractImgRef.current = null;
     setPreview(null);
     setColors([]);
     if (inputRef.current) inputRef.current.value = "";
-  }, []);
+  }, [setPreview]);
 
   const toggleLock = useCallback((index: number) => {
     setColors((prev) =>
@@ -236,10 +214,8 @@ export function useExtract(): ExtractState {
     isDragging,
     preview,
     colors,
-    isNaming,
     imgRef,
     inputRef,
-    handleImageLoad,
     handleFile,
     handleDragOver,
     handleDragLeave,

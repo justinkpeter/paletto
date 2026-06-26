@@ -18,8 +18,8 @@ export type ColorItem = {
 
 export type ExtractEntry = {
   id: string;
-  preview: string; // data URL
-  colors: string[]; // hex values
+  preview: string;
+  colors: string[];
 };
 
 export type ColorBlockState = Pick<PaletteStore, "blocks">;
@@ -46,6 +46,8 @@ export type PaletteStore = {
   updateBlockColor: (id: string, color: string) => void;
   extractHistory: ExtractEntry[];
   addExtractEntry: (entry: ExtractEntry) => void;
+  activeExtractPreview: string | null;
+  setActiveExtractPreview: (url: string | null) => void;
 };
 
 export const slugFromBlocks = (blocks: ColorItem[]): string =>
@@ -80,6 +82,7 @@ export const usePaletteStore = create<PaletteStore>()(
       autoScheme: true,
       visionMode: "normal",
       expandedId: null,
+      activeExtractPreview: null,
 
       setBlocks: (blocks) => set({ blocks }),
 
@@ -92,6 +95,8 @@ export const usePaletteStore = create<PaletteStore>()(
       setVisionMode: (mode) => set({ visionMode: mode }),
 
       setExpandedId: (id) => set({ expandedId: id }),
+
+      setActiveExtractPreview: (url) => set({ activeExtractPreview: url }),
 
       regenerate: () => {
         set((state) => {

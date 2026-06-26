@@ -25,6 +25,10 @@ $block-radius: 16px;
     transition:
       transform 0.6s ease,
       opacity 0.6s ease;
+
+    @include respond-to(md) {
+      opacity: 1;
+    }
   }
 
   &__bottom {
@@ -32,6 +36,12 @@ $block-radius: 16px;
     flex-direction: column;
     align-items: center;
     gap: 8px;
+
+    @include respond-to(md) {
+      flex-direction: row;
+      justify-content: center;
+      height: 100%;
+    }
   }
 
   &__lock {
@@ -55,8 +65,9 @@ $block-radius: 16px;
 
   @include respond-to(md) {
     justify-content: flex-end;
-    padding-right: var(--space-8);
+    padding-right: var(--space-12);
     font-size: 16px;
+    padding-bottom: 0;
 
     &:first-of-type,
     &:last-of-type {

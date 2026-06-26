@@ -19,11 +19,8 @@ export default function ExtractSidebar() {
   const {
     isDragging,
     preview,
-    colors,
-    isNaming,
     imgRef,
     inputRef,
-    handleImageLoad,
     handleDragOver,
     handleDragLeave,
     handleDrop,
@@ -66,7 +63,6 @@ export default function ExtractSidebar() {
               src={preview}
               alt="Uploaded image"
               className={bem.element("thumbnail")}
-              onLoad={handleImageLoad}
             />
             <button
               className={bem.element("clear-btn")}
@@ -75,9 +71,6 @@ export default function ExtractSidebar() {
             >
               <XIcon size={12} />
             </button>
-            {isNaming && (
-              <div className={bem.element("extracting")}>Extracting…</div>
-            )}
           </div>
         ) : (
           <div
@@ -113,11 +106,7 @@ export default function ExtractSidebar() {
       {/* Actions for current image */}
       {preview && (
         <div className={bem.element("section")}>
-          <button
-            className={bem.element("action-btn")}
-            onClick={regenerate}
-            disabled={isNaming}
-          >
+          <button className={bem.element("action-btn")} onClick={regenerate}>
             <RefreshCwIcon size={14} />
             Regenerate palette
           </button>

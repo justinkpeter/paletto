@@ -1,3 +1,5 @@
+@use "@/styles/mixins" as *;
+
 .toolbar {
   position: absolute;
   top: 50%;
@@ -37,5 +39,11 @@
         transition-delay: #{$i * 0.07}s;
       }
     }
+  }
+
+  @include respond-to(md) {
+    flex-direction: row;
+    left: 10%;
+    transform: translate(-10%, -50%);
   }
 }
