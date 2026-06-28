@@ -5,9 +5,8 @@ import styles from "./NewNavbar.module.scss";
 import Tooltip from "../Tooltip/Tooltip";
 import {
   EyeIcon,
-  HistoryIcon,
   ImagePlusIcon,
-  PencilSparkles,
+  PaletteIcon,
   Redo2Icon,
   Undo2Icon,
 } from "lucide-react";
@@ -70,30 +69,30 @@ export default function NewNavbar() {
         </div>
         <div className={bem.element("divider")} />
         <div className={bem.element("actionButtons")}>
-          <button
-            onClick={() => toggle(SidebarPanel.METHOD)}
-            className={`${styles.iconBtn} ${isOpen(SidebarPanel.METHOD) ? styles.active : ""} ${bem.element("button")}`}
-          >
-            <PencilSparkles />
-          </button>
-          <button
-            onClick={() => toggle(SidebarPanel.HISTORY)}
-            className={`${styles.iconBtn} ${isOpen(SidebarPanel.HISTORY) ? styles.active : ""} ${bem.element("button")}`}
-          >
-            <HistoryIcon />
-          </button>
-          <button
-            onClick={() => toggle(SidebarPanel.ACCESSIBILITY)}
-            className={`${styles.iconBtn} ${isOpen(SidebarPanel.ACCESSIBILITY) ? styles.active : ""} ${bem.element("button")}`}
-          >
-            <EyeIcon />
-          </button>
-          <button
-            onClick={() => toggle(SidebarPanel.EXTRACT)}
-            className={`${styles.iconBtn} ${isOpen(SidebarPanel.EXTRACT) ? styles.active : ""} ${bem.element("button")}`}
-          >
-            <ImagePlusIcon />
-          </button>
+          <Tooltip text="Edit color schemes">
+            <button
+              onClick={() => toggle(SidebarPanel.METHOD)}
+              className={`${styles.iconBtn} ${isOpen(SidebarPanel.METHOD) ? styles.active : ""} ${bem.element("button")}`}
+            >
+              <PaletteIcon />
+            </button>
+          </Tooltip>
+          <Tooltip text="Check accessibility">
+            <button
+              onClick={() => toggle(SidebarPanel.ACCESSIBILITY)}
+              className={`${styles.iconBtn} ${isOpen(SidebarPanel.ACCESSIBILITY) ? styles.active : ""} ${bem.element("button")}`}
+            >
+              <EyeIcon />
+            </button>
+          </Tooltip>
+          <Tooltip text="Extract colors from image">
+            <button
+              onClick={() => toggle(SidebarPanel.EXTRACT)}
+              className={`${styles.iconBtn} ${isOpen(SidebarPanel.EXTRACT) ? styles.active : ""} ${bem.element("button")}`}
+            >
+              <ImagePlusIcon />
+            </button>
+          </Tooltip>
         </div>
       </div>
     </nav>

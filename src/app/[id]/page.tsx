@@ -6,7 +6,6 @@ import { move } from "@dnd-kit/helpers";
 import { usePalette } from "@/hooks/usePalette";
 import styles from "./Home.module.scss";
 import ColorBlock from "@/components/shared/Hero/ColorBlock";
-import HistorySidebar from "@/components/shared/Navbar/HistorySidebar";
 import MethodSidebar from "@/features/sidebar/MethodSidebar/MethodSidebar";
 import AccessibilitySidebar from "@/features/sidebar/AccessibilitySidebar/AccessibilitySidebar";
 import { usePaletteStore } from "@/store/paletteStore";
@@ -123,7 +122,6 @@ export default function Home() {
         </DragDropProvider>
       </div>
       <MethodSidebar />
-      <HistorySidebar />
       <AccessibilitySidebar />
       <ExtractSidebar />
     </div>

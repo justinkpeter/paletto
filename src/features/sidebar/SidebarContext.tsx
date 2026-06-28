@@ -4,14 +4,12 @@ import { createContext, useContext, useState } from "react";
 
 export enum SidebarPanel {
   METHOD = "method",
-  HISTORY = "history",
   ACCESSIBILITY = "accessibility",
   EXTRACT = "extract",
 }
 
 const SIDEBAR_ORDER: SidebarPanel[] = [
   SidebarPanel.METHOD,
-  SidebarPanel.HISTORY,
   SidebarPanel.ACCESSIBILITY,
   SidebarPanel.EXTRACT,
 ];
