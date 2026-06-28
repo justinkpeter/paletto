@@ -6,8 +6,8 @@ import { SidebarProvider } from "@/features/sidebar/SidebarContext";
 import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
-  title: "Paletto",
-  description: "Extract color palettes from images you love.",
+  title: "Paletto | Color Palette Generator",
+  description: "Generate color palettes from images you love.",
 };
 
 export default function RootLayout({
