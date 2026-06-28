@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { temporal } from "zundo";
 import {
   generatePalette,
+  baseHueFromExtracted,
   ColorScheme,
   Mood,
   VisionMode,
@@ -37,7 +38,13 @@ export type PaletteStore = {
   setMood: (mood: Mood) => void;
   setAutoScheme: (auto: boolean) => void;
   setVisionMode: (mode: VisionMode) => void;
-  regenerate: () => void;
+  regenerate: (overrides?: {
+    scheme?: ColorScheme;
+    mood?: Mood;
+    autoScheme?: boolean;
+    /** Hex colors extracted from an image — used to anchor the base hue */
+    extractedHexes?: string[];
+  }) => void;
   hydrateFromSlug: (slug: string) => void;
   addBlock: (insertAt?: number) => void;
   removeBlock: (id: string) => void;
@@ -65,8 +72,9 @@ const createBlocks = (
   mood: Mood,
   autoScheme: boolean,
   count: number,
+  baseHue?: number,
 ): ColorItem[] =>
-  generatePalette(scheme, mood, autoScheme, count).map((color) => ({
+  generatePalette(scheme, mood, autoScheme, count, baseHue).map((color) => ({
     id: crypto.randomUUID(),
     color,
     locked: false,
@@ -98,14 +106,35 @@ export const usePaletteStore = create<PaletteStore>()(
 
       setActiveExtractPreview: (url) => set({ activeExtractPreview: url }),
 
-      regenerate: () => {
+      regenerate: (overrides?) => {
         set((state) => {
-          const { scheme, mood, autoScheme } = get();
+          const current = get();
+          const scheme = overrides?.scheme ?? current.scheme;
+          const mood = overrides?.mood ?? current.mood;
+          const autoScheme = overrides?.autoScheme ?? current.autoScheme;
+
+          // Derive base hue from extracted image colors if provided
+          const baseHue = overrides?.extractedHexes?.length
+            ? baseHueFromExtracted(overrides.extractedHexes)
+            : undefined;
+
+          // Generate all unlocked colors in one call so harmony applies
+          // across the whole palette from a single base hue
+          const unlockedCount = state.blocks.filter((b) => !b.locked).length;
+          const newColors = generatePalette(
+            scheme,
+            mood,
+            autoScheme,
+            unlockedCount,
+            baseHue,
+          );
+
+          let colorIndex = 0;
           const newBlocks = state.blocks.map((block) => {
             if (block.locked) return block;
-            const [newBlock] = createBlocks(scheme, mood, autoScheme, 1);
-            return { ...block, color: newBlock.color };
+            return { ...block, color: newColors[colorIndex++] };
           });
+
           return {
             blocks: newBlocks,
             history: [newBlocks, ...state.history],

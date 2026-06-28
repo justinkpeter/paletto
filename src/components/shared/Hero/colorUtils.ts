@@ -130,8 +130,6 @@ export function getHarmonyHues(
 ): number[] {
   const h = baseHue % 360;
 
-  // Base offset pools per scheme — ordered by harmonic priority so the
-  // first `count` values always form a valid harmony subset.
   const BASE_OFFSETS: Record<ColorScheme, number[]> = {
     monochromatic: [0, 0, 0, 0, 0, 0, 0, 0],
     analogous: [0, 18, -18, 36, -36, 54, -54, 72],
@@ -144,7 +142,6 @@ export function getHarmonyHues(
   const offsets = BASE_OFFSETS[scheme];
 
   return Array.from({ length: count }, (_, i) => {
-    // If we need more hues than the base pool, cycle with small jitter
     const offset =
       i < offsets.length
         ? offsets[i]
@@ -165,7 +162,6 @@ function generateForScheme(
     const sat = lerp(profile.saturation[0], profile.saturation[1], 0.5);
     const [lMin, lMax] = profile.lightness;
     return Array.from({ length: count }, (_, i) => {
-      // Spread lightness evenly from light → dark across all slots
       const t = count === 1 ? 0.5 : i / (count - 1);
       const l = lerp(lMax, lMin, t);
       return chroma.hsl(hues[0] % 360, sat, l).hex();
@@ -183,11 +179,19 @@ function generateForScheme(
   });
 }
 
+/**
+ * Generates a palette of `count` colors using the given scheme and mood.
+ *
+ * @param baseHue - Optional hue (0–360) to use as the anchor instead of
+ *   picking one randomly. Pass this when generating from an extracted image
+ *   so the palette stays rooted to the image's dominant color.
+ */
 export function generatePalette(
   scheme: string,
   mood: string,
   autoScheme: boolean,
   count: number = 5,
+  baseHue?: number,
 ): string[] {
   const schemes: ColorScheme[] = [
     "analogous",
@@ -202,9 +206,14 @@ export function generatePalette(
     ? schemes[Math.floor(Math.random() * schemes.length)]
     : (scheme as ColorScheme);
 
+  // Use provided baseHue (from extracted image) or pick randomly within mood range
   const hueRange = MOOD_HUE_RANGES[mood as Mood] ?? [0, 360];
-  const baseHue = lerp(hueRange[0], hueRange[1], Math.random());
-  const hues = getHarmonyHues(baseHue, resolvedScheme, count);
+  const resolvedBaseHue =
+    baseHue !== undefined
+      ? baseHue
+      : lerp(hueRange[0], hueRange[1], Math.random());
+
+  const hues = getHarmonyHues(resolvedBaseHue, resolvedScheme, count);
   return generateForScheme(hues, resolvedScheme, mood as Mood);
 }
 
@@ -232,7 +241,6 @@ export const VISION_FILTERS: Record<string, string> = {
 };
 
 export const generateShades = (hex: string, count = 20): string[] => {
-  // convert to HSL, fix H and S, sweep L from dark to light
   const [h, s] = hexToHsl(hex);
   return Array.from({ length: count }, (_, i) => {
     const l = (5 + (i / (count - 1)) * 90) / 100;
@@ -241,12 +249,38 @@ export const generateShades = (hex: string, count = 20): string[] => {
 };
 
 function hexToHsl(hex: string): [number, number] {
-  console.log("hexToHsl input:", hex); // 👈
+  console.log("hexToHsl input:", hex);
   const [h, s, l] = chroma(hex).hsl();
-  console.log("hsl result:", h, s, l); // 👈
+  console.log("hsl result:", h, s, l);
   return [h ?? 0, s ?? 0];
 }
 
 function hslToHex(h: number, s: number, l: number): string {
   return chroma.hsl(h, s, l).hex();
+}
+
+/**
+ * Derives a representative base hue from an array of hex colors extracted
+ * from an image. Uses the most saturated color as the anchor since it
+ * tends to be the most visually dominant.
+ */
+export function baseHueFromExtracted(hexColors: string[]): number {
+  if (!hexColors.length) return Math.random() * 360;
+
+  let bestHue = 0;
+  let bestSat = -1;
+
+  for (const hex of hexColors) {
+    try {
+      const [h, s] = chroma(hex).hsl();
+      if (s > bestSat) {
+        bestSat = s;
+        bestHue = h ?? 0;
+      }
+    } catch {
+      // skip invalid colors
+    }
+  }
+
+  return bestHue;
 }

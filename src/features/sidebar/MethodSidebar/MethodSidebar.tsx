@@ -6,6 +6,7 @@ import { BemBuilder } from "@/lib/BemBuilder";
 import { usePaletteStore } from "@/store/paletteStore";
 import {
   ColorScheme,
+  Mood,
   MOOD_OPTIONS,
   SCHEME_OPTIONS,
 } from "@/components/shared/Hero/colorUtils";
@@ -24,14 +25,23 @@ export default function MethodSidebar() {
   const setScheme = usePaletteStore((s) => s.setScheme);
   const setMood = usePaletteStore((s) => s.setMood);
   const setAutoScheme = usePaletteStore((s) => s.setAutoScheme);
+  const regenerate = usePaletteStore((s) => s.regenerate);
 
   const activeSchemeValue = autoScheme ? "auto" : scheme;
+
+  const handleMoodChange = (value: Mood) => {
+    setMood(value);
+    regenerate({ mood: value });
+  };
 
   const handleSchemeClick = (value: ColorScheme | "auto") => {
     if (value === "auto") {
       setAutoScheme(true);
+      regenerate({ autoScheme: true });
     } else {
+      setAutoScheme(false);
       setScheme(value);
+      regenerate({ scheme: value, autoScheme: false });
     }
   };
 
@@ -58,7 +68,7 @@ export default function MethodSidebar() {
           variant="pills"
           options={MOOD_OPTIONS}
           value={mood}
-          onChange={setMood}
+          onChange={handleMoodChange}
         />
       </div>
     </Sidebar>
