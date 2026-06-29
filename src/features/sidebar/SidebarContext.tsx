@@ -3,15 +3,15 @@
 import { createContext, useContext, useState } from "react";
 
 export enum SidebarPanel {
+  EXTRACT = "extract",
   METHOD = "method",
   ACCESSIBILITY = "accessibility",
-  EXTRACT = "extract",
 }
 
-const SIDEBAR_ORDER: SidebarPanel[] = [
+export const SIDEBAR_ORDER: SidebarPanel[] = [
+  SidebarPanel.EXTRACT,
   SidebarPanel.METHOD,
   SidebarPanel.ACCESSIBILITY,
-  SidebarPanel.EXTRACT,
 ];
 
 type SidebarContextType = {

@@ -69,6 +69,14 @@ export default function NewNavbar() {
         </div>
         <div className={bem.element("divider")} />
         <div className={bem.element("actionButtons")}>
+          <Tooltip text="Extract colors from image">
+            <button
+              onClick={() => toggle(SidebarPanel.EXTRACT)}
+              className={`${styles.iconBtn} ${isOpen(SidebarPanel.EXTRACT) ? styles.active : ""} ${bem.element("button")}`}
+            >
+              <ImagePlusIcon />
+            </button>
+          </Tooltip>
           <Tooltip text="Edit color schemes">
             <button
               onClick={() => toggle(SidebarPanel.METHOD)}
@@ -83,14 +91,6 @@ export default function NewNavbar() {
               className={`${styles.iconBtn} ${isOpen(SidebarPanel.ACCESSIBILITY) ? styles.active : ""} ${bem.element("button")}`}
             >
               <EyeIcon />
-            </button>
-          </Tooltip>
-          <Tooltip text="Extract colors from image">
-            <button
-              onClick={() => toggle(SidebarPanel.EXTRACT)}
-              className={`${styles.iconBtn} ${isOpen(SidebarPanel.EXTRACT) ? styles.active : ""} ${bem.element("button")}`}
-            >
-              <ImagePlusIcon />
             </button>
           </Tooltip>
         </div>

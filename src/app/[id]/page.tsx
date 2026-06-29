@@ -6,18 +6,14 @@ import { move } from "@dnd-kit/helpers";
 import { usePalette } from "@/hooks/usePalette";
 import styles from "./Home.module.scss";
 import ColorBlock from "@/components/shared/Hero/ColorBlock";
-import MethodSidebar from "@/features/sidebar/MethodSidebar/MethodSidebar";
-import AccessibilitySidebar from "@/features/sidebar/AccessibilitySidebar/AccessibilitySidebar";
 import { usePaletteStore } from "@/store/paletteStore";
 import { VISION_FILTERS } from "@/components/shared/Hero/colorUtils";
 import { VisionFilters } from "@/components/shared/Hero/VisionFilters";
 import AddBlockDivider from "@/components/shared/Hero/AddBlockDivider";
 import SortableBlock from "@/components/shared/Hero/SortableBlock";
 import ShadesBlock from "@/components/shared/Hero/ShadesBlock";
-import { useState, useRef } from "react";
-import ExtractSidebar from "@/features/sidebar/ExtractSidebar/ExtractSidebar";
-
-const REMOVE_DURATION = 350;
+import SidebarMap from "@/features/sidebar/SidebarMap";
+import { useRemoveBlock } from "@/components/shared/Hero/useRemoveBlock";
 
 export default function Home() {
   const {
@@ -34,55 +30,19 @@ export default function Home() {
   const expandedId = usePaletteStore((s) => s.expandedId);
   const setExpandedId = usePaletteStore((s) => s.setExpandedId);
 
-  const [mountedIds, setMountedIds] = useState<Set<string>>(
-    () => new Set(blocks.map((b) => b.id)),
-  );
-  const [removingIds, setRemovingIds] = useState<Set<string>>(new Set());
-  const removeTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(
-    new Map(),
-  );
+  const { mountedIds, removingIds, handleMount, handleRemove } =
+    useRemoveBlock(removeBlock);
 
-  const handleMount = (id: string) => {
-    requestAnimationFrame(() => {
-      setMountedIds((prev) => new Set(prev).add(id));
-    });
-  };
-
-  const handleRemove = (id: string) => {
-    if (removingIds.has(id)) return;
-
-    setMountedIds((prev) => {
-      const next = new Set(prev);
-      next.delete(id);
-      return next;
-    });
-    setRemovingIds((prev) => new Set(prev).add(id));
-
-    const timer = setTimeout(() => {
-      removeBlock(id);
-      setRemovingIds((prev) => {
-        const next = new Set(prev);
-        next.delete(id);
-        return next;
-      });
-      removeTimers.current.delete(id);
-    }, REMOVE_DURATION);
-
-    removeTimers.current.set(id, timer);
-  };
-
+  const visionFilter = VISION_FILTERS[visionMode];
   return (
     <div className={styles.hero}>
-      <VisionFilters />
       <div className={styles.hero__inner}>
         <DragDropProvider
           onDragEnd={(e) => setBlocks(move(blocks, e))}
           modifiers={[RestrictToWindow]}
         >
-          <div
-            className={styles.hero__colorBlocks}
-            style={{ filter: VISION_FILTERS[visionMode] }}
-          >
+          <div className={styles.hero__colorBlocks}>
+            <VisionFilters />
             {blocks.map((block, index) => (
               <SortableBlock
                 key={block.id}
@@ -105,7 +65,7 @@ export default function Home() {
                   <ColorBlock
                     color={block.color}
                     locked={block.locked}
-                    visionFilter={VISION_FILTERS[visionMode]}
+                    visionFilter={visionFilter}
                     onRemove={
                       canRemove ? () => handleRemove(block.id) : undefined
                     }
@@ -121,9 +81,7 @@ export default function Home() {
           </div>
         </DragDropProvider>
       </div>
-      <MethodSidebar />
-      <AccessibilitySidebar />
-      <ExtractSidebar />
+      <SidebarMap />
     </div>
   );
 }
