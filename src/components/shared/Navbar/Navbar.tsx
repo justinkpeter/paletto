@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import styles from "./NewNavbar.module.scss";
+import styles from "./Navbar.module.scss";
 import Tooltip from "../Tooltip/Tooltip";
 import {
   EyeIcon,

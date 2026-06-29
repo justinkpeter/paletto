@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.scss";
-import NewNavbar from "@/components/shared/Navbar/NewNavbar";
+import Navbar from "@/components/shared/Navbar/Navbar";
 import PaletteInit from "@/components/PaletteInit";
 import { SidebarProvider } from "@/features/sidebar/SidebarContext";
 import { Toaster } from "sonner";
@@ -19,7 +19,7 @@ export default function RootLayout({
     <html lang="en" data-theme="light">
       <body>
         <SidebarProvider>
-          <NewNavbar />
+          <Navbar />
           <PaletteInit />
           {children}
           <Toaster position="bottom-center" />
