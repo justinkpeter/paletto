@@ -162,10 +162,13 @@
     cursor: pointer;
     width: 100%;
     padding: 0.5rem;
-    transition: border-color 200ms ease;
+    transition:
+      border-color 200ms ease,
+      transform 200ms ease;
 
-    &:hover {
+    &:hover:not(&--active) {
       border-color: #e0e0dc;
+      transform: scale(0.98);
     }
 
     &--active {
