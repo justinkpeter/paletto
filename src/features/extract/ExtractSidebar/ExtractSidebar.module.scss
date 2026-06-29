@@ -1,0 +1,209 @@
+.extract {
+  &__section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-bottom: var(--space-6);
+  }
+
+  &__label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    padding: 0 var(--space-1);
+    margin: 0;
+  }
+
+  // ---- Drop zone ----
+
+  &__dropzone {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-8) var(--space-4);
+    border: 2px dashed var(--border-subtle);
+    border-radius: 12px;
+    background: var(--bg-elevated);
+    cursor: pointer;
+    text-align: center;
+    transition:
+      border-color 200ms ease,
+      background var(--duration-fast) ease;
+
+    &:hover {
+      border-color: #ccc;
+      background: #fafaf8;
+    }
+    &--dragging {
+      border-color: var(--text-primary);
+      background: #fafaf8;
+    }
+  }
+
+  &__upload-icon {
+    color: #bbb;
+  }
+
+  &__dropzone-primary {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  &__dropzone-secondary {
+    font-size: var(--font-size-xs);
+    color: var(--text-muted);
+  }
+
+  // ---- Preview ----
+
+  &__preview {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid var(--border-subtle);
+  }
+
+  &__thumbnail {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+    max-height: 160px;
+  }
+
+  &__clear-btn {
+    position: absolute;
+    top: var(--space-2);
+    right: var(--space-2);
+    width: var(--space-6);
+    height: var(--space-6);
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background var(--duration-fast) ease;
+    &:hover {
+      background: rgba(0, 0, 0, 0.75);
+    }
+  }
+
+  &__extracting {
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  // ---- Actions ----
+
+  &__action-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0.625rem 0.75rem;
+    border: 2px solid var(--border-subtle);
+    border-radius: 10px;
+    background: var(--bg-elevated);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition:
+      border-color var(--duration-base) ease,
+      background var(--duration-fast) ease;
+
+    &:hover:not(:disabled) {
+      background: #fafaf8;
+      border-color: #ccc;
+    }
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    &--secondary {
+      color: var(--text-muted);
+      border-color: var(--border-subtle);
+      &:hover:not(:disabled) {
+        color: var(--text-primary);
+      }
+    }
+  }
+
+  // ---- History ----
+
+  &__history {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+  &__entry {
+    display: flex;
+    align-items: stretch;
+    gap: 6px;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--bg-elevated);
+    cursor: pointer;
+    width: 100%;
+    padding: var(--space-2);
+    transition:
+      border-color 200ms ease,
+      transform 200ms ease;
+
+    &:hover:not(&--active) {
+      border-color: var(--border-subtle);
+      transform: scale(0.98);
+    }
+
+    &--active {
+      border-color: var(--text-primary);
+    }
+  }
+
+  &__entry-thumb {
+    width: 80px;
+    flex-shrink: 0;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    max-height: 60px;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+  }
+
+  &__entry-swatches {
+    display: flex;
+    flex: 1;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  &__entry-swatch {
+    flex: 0.5;
+    transition: flex 0.2s var(--ease-bounce);
+
+    &:hover {
+      flex: 2;
+    }
+  }
+}

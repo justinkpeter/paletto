@@ -1,0 +1,49 @@
+@use "@/styles/mixins" as *;
+
+.sortableBlock {
+  flex: 1;
+  position: relative;
+  display: flex;
+  min-width: 0;
+  height: 100%;
+
+  // Start collapsed and invisible
+  flex-grow: 0;
+  opacity: 0;
+
+  transition:
+    flex-grow 350ms var(--ease-smooth),
+    opacity 300ms ease;
+
+  // Entrance: expand and fade in
+  &[data-mounted="true"] {
+    flex-grow: 1;
+    opacity: 1;
+  }
+
+  // Exit: collapse and fade out (removing overrides mounted)
+  &[data-removing="true"] {
+    flex-grow: 0;
+    opacity: 0;
+  }
+
+  > [class*="divider"] {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    translate: 50% 0;
+  }
+
+  @include respond-to(md) {
+    overflow: visible;
+
+    > [class*="divider"] {
+      right: auto;
+      left: 0;
+      top: auto;
+      bottom: 0;
+      translate: 0 50%;
+    }
+  }
+}

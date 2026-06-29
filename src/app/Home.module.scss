@@ -1,0 +1,24 @@
+.hero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  height: 100dvh;
+  width: 100dvw;
+
+  &__colorBlocks {
+    display: flex;
+    width: 100%;
+    height: 620px;
+    gap: var(--space-2);
+  }
+
+  &__inner {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 300ms var(--ease-smooth);
+    min-width: 0;
+  }
+}

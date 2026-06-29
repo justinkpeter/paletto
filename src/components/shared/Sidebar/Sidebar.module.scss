@@ -1,0 +1,113 @@
+@use "@/styles/mixins" as *;
+
+$sidebar-width: 280px;
+
+.sidebar {
+  height: 100dvh;
+  width: 0;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  will-change: width;
+  transition: width 280ms var(--ease-smooth);
+  transform-origin: right;
+  padding-top: 10.5rem;
+
+  &--open {
+    width: $sidebar-width;
+  }
+
+  &__inner {
+    width: $sidebar-width;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-4) 1.125rem;
+    border-bottom: 1px solid var(--border-subtle);
+    flex-shrink: 0;
+
+    &-left {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      color: var(--text-secondary);
+    }
+  }
+
+  @include respond-to(md) {
+    padding-top: var(--space-16);
+  }
+
+  &__title {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+  }
+
+  &__close-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: none;
+    border-radius: 6px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition:
+      background var(--duration-fast) ease,
+      color var(--duration-fast) ease;
+
+    &:hover {
+      background: var(--bg-base);
+      color: var(--text-primary);
+    }
+  }
+
+  &__content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: visible;
+    padding: var(--space-3);
+    scrollbar-width: thin;
+    scrollbar-color: #ddd transparent;
+    padding-bottom: 4rem;
+  }
+
+  &__footer {
+    padding: var(--space-3) 1.125rem;
+    border-top: 1px solid var(--border-subtle);
+    flex-shrink: 0;
+  }
+
+  @include respond-to(md) {
+    position: static;
+    width: 100dvw;
+    height: 0;
+    padding-top: 0;
+    will-change: height;
+    transition: height 280ms var(--ease-smooth);
+    background: var(--bg-elevated);
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.12);
+    flex-shrink: 0;
+
+    &--open {
+      width: 100dvw;
+      height: 45dvh;
+    }
+
+    &__inner {
+      width: 100dvw;
+      height: 100%;
+    }
+  }
+}

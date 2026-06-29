@@ -1,0 +1,57 @@
+@use "@/styles/mixins" as *;
+
+.toolbar {
+  position: absolute;
+  top: 50%;
+  transform: translate(0%, -50%);
+  display: flex;
+  flex-direction: column;
+  transform-origin: center;
+
+  &[data-tone="dark"] {
+    --toolbar-icon: rgba(255, 255, 255, 0.8);
+    --toolbar-icon-hover: rgba(255, 255, 255, 1);
+    --toolbar-btn-hover-bg: rgba(0, 0, 0, 0.2);
+  }
+
+  &[data-tone="light"] {
+    --toolbar-icon: rgba(0, 0, 0, 0.55);
+    --toolbar-icon-hover: rgba(0, 0, 0, 1);
+    --toolbar-btn-hover-bg: rgba(0, 0, 0, 0.08);
+  }
+
+  &__button {
+    will-change: transform, opacity;
+    transition: background 0.1s ease;
+    padding: var(--space-2);
+    cursor: pointer;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+      display: block;
+      stroke: var(--toolbar-icon);
+      transition: stroke 0.1s ease;
+    }
+
+    &:active {
+      transform: scale(0.92);
+    }
+
+    &:hover {
+      background: var(--toolbar-btn-hover-bg);
+
+      svg {
+        stroke: var(--toolbar-icon-hover);
+      }
+    }
+  }
+
+  @include respond-to(md) {
+    flex-direction: row;
+    left: 10%;
+    transform: translate(-10%, -50%);
+  }
+}

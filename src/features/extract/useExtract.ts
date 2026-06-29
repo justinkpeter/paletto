@@ -1,187 +1,146 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useRef, useCallback, useState } from "react";
 import { getPaletteSync } from "colorthief";
-
-export type ColorEntry = {
-  id: string;
-  hex: string;
-  name: string;
-  locked: boolean;
-  isLoading: boolean;
-};
+import { usePaletteStore } from "@/store/paletteStore";
+import { toast } from "sonner";
 
 export type ExtractState = {
   isDragging: boolean;
   preview: string | null;
-  colors: ColorEntry[];
-  isNaming: boolean;
-  toast: string | null;
-  copiedIndex: number | null;
   imgRef: React.RefObject<HTMLImageElement | null>;
   inputRef: React.RefObject<HTMLInputElement | null>;
-  handleImageLoad: () => void;
   handleFile: (file: File) => void;
-  handleCopy: (hex: string, index: number) => void;
   handleDragOver: (e: React.DragEvent<HTMLDivElement>) => void;
   handleDragLeave: (e: React.DragEvent<HTMLDivElement>) => void;
   handleDrop: (e: React.DragEvent<HTMLDivElement>) => void;
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleReset: () => void;
-  regenerate: () => void;
-  toggleLock: (index: number) => void;
-  reorder: (fromIndex: number, toIndex: number) => void;
-  setColorsDirectly: (colors: ColorEntry[]) => void;
+  resample: () => void;
 };
 
 export function useExtract(): ExtractState {
   const [isDragging, setIsDragging] = useState(false);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [colors, setColors] = useState<ColorEntry[]>([]);
-  const [isNaming, setIsNaming] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
-  const [quality, setQuality] = useState(6);
+
   const inputRef = useRef<HTMLInputElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
-  const colorsRef = useRef<ColorEntry[]>([]);
-  const previewRef = useRef<string | null>(null);
+  const extractImgRef = useRef<HTMLImageElement | null>(null);
 
-  useEffect(() => {
-    colorsRef.current = colors;
-  }, [colors]);
-
-  useEffect(() => {
-    previewRef.current = preview;
-  }, [preview]);
-
-  const showToast = useCallback((message: string) => {
-    setToast(message);
-    setTimeout(() => setToast(null), 2000);
-  }, []);
-
-  const nameColors = useCallback(
-    async (indicesToName: number[], hexes: string[]) => {
-      setColors((prev) =>
-        prev.map((c, i) =>
-          indicesToName.includes(i) ? { ...c, isLoading: true } : c,
-        ),
-      );
-      try {
-        const res = await fetch("/api/name-colors", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ colors: hexes }),
-        });
-        const data = await res.json();
-        setColors((prev) =>
-          prev.map((c, i) => {
-            const nameIndex = indicesToName.indexOf(i);
-            if (nameIndex === -1) return c;
-            return {
-              ...c,
-              name: data.names[nameIndex] ?? "",
-              isLoading: false,
-            };
-          }),
-        );
-      } catch (e) {
-        console.error("Naming failed", e);
-        setColors((prev) =>
-          prev.map((c, i) =>
-            indicesToName.includes(i) ? { ...c, isLoading: false } : c,
-          ),
-        );
-      } finally {
-        setIsNaming(false);
-      }
-    },
-    [],
+  const preview = usePaletteStore((s) => s.activeExtractPreview);
+  const setPreview = usePaletteStore((s) => s.setActiveExtractPreview);
+  const addExtractEntry = usePaletteStore((s) => s.addExtractEntry);
+  const regenerateStore = usePaletteStore((s) => s.regenerate);
+  const setActiveExtractedHexes = usePaletteStore(
+    (s) => s.setActiveExtractedHexes,
   );
 
-  const extractColors = useCallback(
-    (q: number, existingColors?: ColorEntry[]) => {
-      const img = imgRef.current;
-      if (!img) return;
-      try {
-        const raw = getPaletteSync(img, { colorCount: 6, quality: q });
-        if (!raw) return;
-        const newHexes = raw.map((c) => c.hex().toUpperCase());
-        const indicesToName: number[] = [];
-        const hexesToName: string[] = [];
-        const merged: ColorEntry[] = (
-          existingColors ?? Array(6).fill(null)
-        ).map((existing: ColorEntry | null, i) => {
-          if (existing?.locked) return existing;
-          const hex = newHexes[i] ?? newHexes[0];
-          indicesToName.push(i);
-          hexesToName.push(hex);
-          return {
-            id: crypto.randomUUID(),
-            hex,
-            name: "",
-            locked: false,
-            isLoading: true,
-          };
-        });
-        setIsNaming(true);
-        setColors(merged);
-        nameColors(indicesToName, hexesToName);
-      } catch (e) {
-        console.error("Color extraction failed", e);
-      }
+  const doExtract = useCallback(
+    (img: HTMLImageElement) => {
+      const toastId = toast.loading("Generating palette…");
+      setTimeout(() => {
+        try {
+          const { blocks, autoScheme, scheme } = usePaletteStore.getState();
+          const count = blocks.filter((b) => !b.locked).length;
+
+          // Sample a large pool so resampling produces genuine variety
+          const raw = getPaletteSync(img, { colorCount: 256, quality: 1 });
+          if (!raw) {
+            toast.error("Extraction failed", { id: toastId });
+            return;
+          }
+
+          const hexes = [...raw]
+            .sort(() => Math.random() - 0.5)
+            .slice(0, count)
+            .map((c) => c.hex().toUpperCase());
+
+          // Store raw pixel samples as the hue anchor
+          setActiveExtractedHexes(hexes);
+
+          if (autoScheme) {
+            // No scheme selected — place raw extracted colors directly into
+            // blocks so the palette is faithful to the image
+            const currentBlocks = usePaletteStore.getState().blocks;
+            const newBlocks = currentBlocks.map((block, i) => {
+              if (block.locked) return block;
+              return { ...block, color: hexes[i] ?? hexes[0] };
+            });
+            usePaletteStore.getState().setBlocks(newBlocks);
+          } else {
+            // User has a scheme selected — apply it anchored to image hues
+            regenerateStore({
+              extractedHexes: hexes,
+              scheme,
+              autoScheme: false,
+            });
+          }
+
+          // Save to history using final block colors so swatches match
+          // what the user actually sees in the palette
+          const currentPreview =
+            usePaletteStore.getState().activeExtractPreview;
+          const finalBlocks = usePaletteStore.getState().blocks;
+          if (currentPreview) {
+            addExtractEntry({
+              id: crypto.randomUUID(),
+              preview: currentPreview,
+              rawHexes: hexes,
+              colors: finalBlocks.map((b) => b.color),
+            });
+          }
+
+          toast.success("Palette ready", { id: toastId });
+        } catch (e) {
+          console.error("Color extraction failed", e);
+          toast.error("Extraction failed", { id: toastId });
+        }
+      }, 50);
     },
-    [nameColors],
+    [addExtractEntry, regenerateStore, setActiveExtractedHexes],
   );
 
-  const handleImageLoad = useCallback(() => {
-    extractColors(quality);
-  }, [extractColors, quality]);
+  const loadAndExtract = useCallback(
+    (dataUrl: string) => {
+      const img = new Image();
+      img.onload = () => {
+        extractImgRef.current = img;
+        doExtract(img);
+      };
+      img.onerror = () => toast.error("Failed to load image");
+      img.src = dataUrl;
+    },
+    [doExtract],
+  );
 
-  const regenerate = useCallback(() => {
-    if (!previewRef.current) return;
-    const newQuality = Math.floor(Math.random() * 10) + 1;
-    setQuality(newQuality);
-    extractColors(newQuality, colorsRef.current);
-    showToast("New palette generated");
-  }, [extractColors, showToast]);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.code === "Space" && e.target === document.body) {
-        e.preventDefault();
-        regenerate();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [regenerate]);
+  // Re-runs colorthief on the source image for a fresh pixel sample,
+  // then applies current scheme/mood. Spacebar triggers this when
+  // the Extract panel is open.
+  const resample = useCallback(() => {
+    const currentPreview = usePaletteStore.getState().activeExtractPreview;
+    if (!currentPreview) return;
+    if (extractImgRef.current) {
+      doExtract(extractImgRef.current);
+    } else {
+      loadAndExtract(currentPreview);
+    }
+  }, [doExtract, loadAndExtract]);
 
   const handleFile = useCallback(
     (file: File) => {
       if (!file.type.startsWith("image/")) return;
       if (file.size > 5 * 1024 * 1024) {
-        showToast("Please select an image under 5MB");
+        toast.error("Please select an image under 5MB");
         return;
       }
-      setColors([]);
+      extractImgRef.current = null;
       const reader = new FileReader();
       reader.onload = (e) => {
         const dataUrl = e.target?.result as string;
         setPreview(dataUrl);
+        loadAndExtract(dataUrl);
       };
       reader.onerror = (e) => console.error("FileReader error", e);
       reader.readAsDataURL(file);
     },
-    [showToast],
-  );
-
-  const handleCopy = useCallback(
-    (hex: string, index: number) => {
-      navigator.clipboard.writeText(hex);
-      setCopiedIndex(index);
-      showToast(`${hex} copied`);
-      setTimeout(() => setCopiedIndex(null), 1500);
-    },
-    [showToast],
+    [setPreview, loadAndExtract],
   );
 
   const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
@@ -213,51 +172,23 @@ export function useExtract(): ExtractState {
   );
 
   const handleReset = useCallback(() => {
+    extractImgRef.current = null;
     setPreview(null);
-    setColors([]);
+    setActiveExtractedHexes(null);
     if (inputRef.current) inputRef.current.value = "";
-  }, []);
-
-  const toggleLock = useCallback((index: number) => {
-    setColors((prev) =>
-      prev.map((c, i) => (i === index ? { ...c, locked: !c.locked } : c)),
-    );
-  }, []);
-
-  const reorder = useCallback((fromIndex: number, toIndex: number) => {
-    if (fromIndex === toIndex) return;
-    setColors((prev) => {
-      const next = [...prev];
-      const [moved] = next.splice(fromIndex, 1);
-      next.splice(toIndex, 0, moved);
-      return next;
-    });
-  }, []);
-
-  const setColorsDirectly = useCallback((newColors: ColorEntry[]) => {
-    setColors(newColors);
-  }, []);
+  }, [setPreview, setActiveExtractedHexes]);
 
   return {
     isDragging,
     preview,
-    colors,
-    isNaming,
-    toast,
-    copiedIndex,
     imgRef,
     inputRef,
-    handleImageLoad,
     handleFile,
-    handleCopy,
     handleDragOver,
     handleDragLeave,
     handleDrop,
     handleChange,
     handleReset,
-    regenerate,
-    toggleLock,
-    reorder,
-    setColorsDirectly,
+    resample,
   };
 }
