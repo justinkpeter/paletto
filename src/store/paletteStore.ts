@@ -20,7 +20,8 @@ export type ColorItem = {
 export type ExtractEntry = {
   id: string;
   preview: string;
-  colors: string[];
+  colors: string[]; // final block colors — what swatches display
+  rawHexes: string[]; // original pixel samples — what restore anchors to
 };
 
 export type ColorBlockState = Pick<PaletteStore, "blocks">;
@@ -42,7 +43,6 @@ export type PaletteStore = {
     scheme?: ColorScheme;
     mood?: Mood;
     autoScheme?: boolean;
-    /** Hex colors extracted from an image — used to anchor the base hue */
     extractedHexes?: string[];
   }) => void;
   hydrateFromSlug: (slug: string) => void;
@@ -55,6 +55,8 @@ export type PaletteStore = {
   addExtractEntry: (entry: ExtractEntry) => void;
   activeExtractPreview: string | null;
   setActiveExtractPreview: (url: string | null) => void;
+  activeExtractedHexes: string[] | null;
+  setActiveExtractedHexes: (hexes: string[] | null) => void;
 };
 
 export const slugFromBlocks = (blocks: ColorItem[]): string =>
@@ -91,6 +93,7 @@ export const usePaletteStore = create<PaletteStore>()(
       visionMode: "normal",
       expandedId: null,
       activeExtractPreview: null,
+      activeExtractedHexes: null,
 
       setBlocks: (blocks) => set({ blocks }),
 
@@ -106,25 +109,42 @@ export const usePaletteStore = create<PaletteStore>()(
 
       setActiveExtractPreview: (url) => set({ activeExtractPreview: url }),
 
+      setActiveExtractedHexes: (hexes) => set({ activeExtractedHexes: hexes }),
+
       regenerate: (overrides?) => {
         set((state) => {
           const current = get();
-          const scheme = overrides?.scheme ?? current.scheme;
-          const mood = overrides?.mood ?? current.mood;
-          const autoScheme = overrides?.autoScheme ?? current.autoScheme;
+          const hexes =
+            overrides?.extractedHexes ??
+            current.activeExtractedHexes ??
+            undefined;
 
-          // Derive base hue from extracted image colors if provided
-          const baseHue = overrides?.extractedHexes?.length
-            ? baseHueFromExtracted(overrides.extractedHexes)
+          const schemes: ColorScheme[] = [
+            "analogous",
+            "complementary",
+            "triadic",
+            "split-complementary",
+            "monochromatic",
+            "tetradic",
+          ];
+
+          const autoScheme = overrides?.autoScheme ?? current.autoScheme;
+          const scheme =
+            overrides?.scheme ??
+            (autoScheme && hexes
+              ? schemes[Math.floor(Math.random() * schemes.length)]
+              : current.scheme);
+          const resolvedAuto = autoScheme && !hexes;
+          const mood = overrides?.mood ?? current.mood;
+          const baseHue = hexes?.length
+            ? baseHueFromExtracted(hexes)
             : undefined;
 
-          // Generate all unlocked colors in one call so harmony applies
-          // across the whole palette from a single base hue
           const unlockedCount = state.blocks.filter((b) => !b.locked).length;
           const newColors = generatePalette(
             scheme,
             mood,
-            autoScheme,
+            resolvedAuto,
             unlockedCount,
             baseHue,
           );

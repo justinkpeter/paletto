@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { ImagePlusIcon, UploadIcon, XIcon, RefreshCwIcon } from "lucide-react";
 import { BemBuilder } from "@/lib/BemBuilder";
-import { usePaletteStore } from "@/store/paletteStore";
+import { usePaletteStore, ExtractEntry } from "@/store/paletteStore";
 import { SidebarPanel, useSidebar } from "@/features/sidebar/SidebarContext";
 import styles from "./ExtractSidebar.module.scss";
 import Sidebar from "@/components/shared/Sidebar/Sidebar";
@@ -11,10 +11,12 @@ import { useExtract } from "@/features/extract/useExtract";
 
 export default function ExtractSidebar() {
   const bem = useMemo(() => new BemBuilder("extract", styles), []);
-  const { isOpen, toggle } = useSidebar();
-  const setBlocks = usePaletteStore((s) => s.setBlocks);
+  const { isOpen, toggle, registerResample } = useSidebar();
   const extractHistory = usePaletteStore((s) => s.extractHistory);
   const blocks = usePaletteStore((s) => s.blocks);
+  const setActiveExtractedHexes = usePaletteStore(
+    (s) => s.setActiveExtractedHexes,
+  );
 
   const {
     isDragging,
@@ -26,12 +28,21 @@ export default function ExtractSidebar() {
     handleDrop,
     handleChange,
     handleReset,
-    regenerate,
+    resample,
   } = useExtract();
 
-  const handleRestoreEntry = (hexes: string[]) => {
-    setBlocks(
-      hexes.map((hex, i) => ({
+  // Register resample with SidebarContext so PaletteInit can call it
+  // via spacebar when the Extract panel is open
+  useEffect(() => {
+    registerResample(resample);
+  }, [resample, registerResample]);
+
+  // Restore exact palette colors from history and re-anchor to raw
+  // pixel hexes so subsequent spacebar/Method changes stay image-rooted
+  const handleRestoreEntry = (entry: ExtractEntry) => {
+    setActiveExtractedHexes(entry.rawHexes);
+    usePaletteStore.getState().setBlocks(
+      entry.colors.map((hex, i) => ({
         id: `color-block-${i}`,
         color: hex,
         locked: false,
@@ -106,7 +117,7 @@ export default function ExtractSidebar() {
       {/* Actions for current image */}
       {preview && (
         <div className={bem.element("section")}>
-          <button className={bem.element("action-btn")} onClick={regenerate}>
+          <button className={bem.element("action-btn")} onClick={resample}>
             <RefreshCwIcon size={14} />
             Regenerate palette
           </button>
@@ -132,7 +143,7 @@ export default function ExtractSidebar() {
                   "entry",
                   isActiveEntry(entry.colors) && "active",
                 )}
-                onClick={() => handleRestoreEntry(entry.colors)}
+                onClick={() => handleRestoreEntry(entry)}
               >
                 <div className={bem.element("entry-thumb")}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}

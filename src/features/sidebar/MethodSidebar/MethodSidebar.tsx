@@ -31,17 +31,34 @@ export default function MethodSidebar() {
 
   const handleMoodChange = (value: Mood) => {
     setMood(value);
-    regenerate({ mood: value });
+    const { activeExtractedHexes } = usePaletteStore.getState();
+    regenerate({
+      mood: value,
+      ...(activeExtractedHexes ? { extractedHexes: activeExtractedHexes } : {}),
+    });
   };
 
   const handleSchemeClick = (value: ColorScheme | "auto") => {
     if (value === "auto") {
       setAutoScheme(true);
-      regenerate({ autoScheme: true });
+      const { activeExtractedHexes } = usePaletteStore.getState();
+      regenerate({
+        autoScheme: true,
+        ...(activeExtractedHexes
+          ? { extractedHexes: activeExtractedHexes }
+          : {}),
+      });
     } else {
       setAutoScheme(false);
       setScheme(value);
-      regenerate({ scheme: value, autoScheme: false });
+      const { activeExtractedHexes } = usePaletteStore.getState();
+      regenerate({
+        scheme: value,
+        autoScheme: false,
+        ...(activeExtractedHexes
+          ? { extractedHexes: activeExtractedHexes }
+          : {}),
+      });
     }
   };
 

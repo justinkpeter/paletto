@@ -85,21 +85,31 @@ type MoodProfile = {
 };
 
 const MOOD_PROFILES: Record<Mood, MoodProfile> = {
-  any: { saturation: [0.4, 0.85], lightness: [0.25, 0.65] },
-  vibrant: { saturation: [0.75, 0.95], lightness: [0.45, 0.6] },
-  bright: { saturation: [0.7, 0.9], lightness: [0.55, 0.72] },
-  pastel: { saturation: [0.25, 0.5], lightness: [0.7, 0.88] },
-  soft: { saturation: [0.2, 0.45], lightness: [0.6, 0.8] },
-  muted: { saturation: [0.1, 0.3], lightness: [0.4, 0.65] },
-  moody: { saturation: [0.3, 0.6], lightness: [0.15, 0.35] },
-  dark: { saturation: [0.4, 0.7], lightness: [0.1, 0.28] },
-  warm: { saturation: [0.5, 0.85], lightness: [0.35, 0.6], hueShift: 20 },
-  cool: { saturation: [0.4, 0.75], lightness: [0.35, 0.6], hueShift: -20 },
-  earthy: { saturation: [0.25, 0.55], lightness: [0.28, 0.52] },
-  playful: { saturation: [0.65, 0.9], lightness: [0.5, 0.7] },
-  elegant: { saturation: [0.15, 0.4], lightness: [0.2, 0.5] },
-  retro: { saturation: [0.35, 0.65], lightness: [0.45, 0.65] },
-  neon: { saturation: [0.9, 1.0], lightness: [0.5, 0.65] },
+  any: { saturation: [0.4, 0.85], lightness: [0.25, 0.85] },
+
+  // Light / airy
+  pastel: { saturation: [0.2, 0.4], lightness: [0.75, 0.92] },
+  soft: { saturation: [0.15, 0.35], lightness: [0.62, 0.8] },
+  bright: { saturation: [0.65, 0.88], lightness: [0.58, 0.76] },
+
+  // Saturated
+  vibrant: { saturation: [0.82, 1.0], lightness: [0.42, 0.58] },
+  neon: { saturation: [0.95, 1.0], lightness: [0.52, 0.68] },
+  playful: { saturation: [0.6, 0.85], lightness: [0.5, 0.68] },
+
+  // Desaturated
+  muted: { saturation: [0.08, 0.22], lightness: [0.38, 0.6] },
+  earthy: { saturation: [0.22, 0.45], lightness: [0.26, 0.46] },
+  elegant: { saturation: [0.08, 0.28], lightness: [0.18, 0.42] },
+  retro: { saturation: [0.28, 0.52], lightness: [0.48, 0.66] },
+
+  // Dark
+  moody: { saturation: [0.35, 0.65], lightness: [0.1, 0.28] },
+  dark: { saturation: [0.45, 0.75], lightness: [0.06, 0.38] },
+
+  // Temperature
+  warm: { saturation: [0.55, 0.88], lightness: [0.38, 0.6], hueShift: 25 },
+  cool: { saturation: [0.45, 0.78], lightness: [0.35, 0.58], hueShift: -25 },
 };
 
 const MOOD_HUE_RANGES: Partial<Record<Mood, [number, number]>> = {
@@ -113,6 +123,11 @@ const MOOD_HUE_RANGES: Partial<Record<Mood, [number, number]>> = {
 
 function lerp(min: number, max: number, t: number): number {
   return min + (max - min) * t;
+}
+
+function biasedLerp(min: number, max: number): number {
+  const t = 0.2 + Math.random() * 0.6;
+  return lerp(min, max, t);
 }
 
 // -- Core --
@@ -159,20 +174,29 @@ function generateForScheme(
   const count = hues.length;
 
   if (scheme === "monochromatic") {
-    const sat = lerp(profile.saturation[0], profile.saturation[1], 0.5);
+    const sat = biasedLerp(profile.saturation[0], profile.saturation[1]);
     const [lMin, lMax] = profile.lightness;
-    return Array.from({ length: count }, (_, i) => {
+
+    // Anchor points evenly spaced across the full mood range,
+    // jittered slightly so each regenerate feels different
+    const jitter = (lMax - lMin) * 0.08;
+    const lightnesses = Array.from({ length: count }, (_, i) => {
       const t = count === 1 ? 0.5 : i / (count - 1);
-      const l = lerp(lMax, lMin, t);
-      return chroma.hsl(hues[0] % 360, sat, l).hex();
-    });
+      const base = lerp(lMin, lMax, t);
+      return Math.max(
+        lMin,
+        Math.min(lMax, base + (Math.random() - 0.5) * jitter * 2),
+      );
+    }).sort((a, b) => b - a); // light → dark
+
+    return lightnesses.map((l) => chroma.hsl(hues[0] % 360, sat, l).hex());
   }
 
   return hues.map((hue, i) => {
     const hueShift = profile.hueShift ?? 0;
     const h = (hue + hueShift + 360) % 360;
-    const s = lerp(profile.saturation[0], profile.saturation[1], Math.random());
-    const l = lerp(profile.lightness[0], profile.lightness[1], Math.random());
+    const s = biasedLerp(profile.saturation[0], profile.saturation[1]);
+    const l = biasedLerp(profile.lightness[0], profile.lightness[1]);
     const isAccent = scheme === "complementary" && i >= 3;
     const finalS = isAccent ? Math.min(s * 1.15, 1) : s;
     return chroma.hsl(h, finalS, l).hex();
@@ -206,7 +230,6 @@ export function generatePalette(
     ? schemes[Math.floor(Math.random() * schemes.length)]
     : (scheme as ColorScheme);
 
-  // Use provided baseHue (from extracted image) or pick randomly within mood range
   const hueRange = MOOD_HUE_RANGES[mood as Mood] ?? [0, 360];
   const resolvedBaseHue =
     baseHue !== undefined
@@ -249,9 +272,7 @@ export const generateShades = (hex: string, count = 20): string[] => {
 };
 
 function hexToHsl(hex: string): [number, number] {
-  console.log("hexToHsl input:", hex);
-  const [h, s, l] = chroma(hex).hsl();
-  console.log("hsl result:", h, s, l);
+  const [h, s] = chroma(hex).hsl();
   return [h ?? 0, s ?? 0];
 }
 
@@ -261,26 +282,34 @@ function hslToHex(h: number, s: number, l: number): string {
 
 /**
  * Derives a representative base hue from an array of hex colors extracted
- * from an image. Uses the most saturated color as the anchor since it
- * tends to be the most visually dominant.
+ * from an image. Uses a chroma-weighted circular mean so mid-tone saturated
+ * colors drive the anchor rather than bright highlights or dark shadows.
  */
 export function baseHueFromExtracted(hexColors: string[]): number {
   if (!hexColors.length) return Math.random() * 360;
 
-  let bestHue = 0;
-  let bestSat = -1;
+  let sinSum = 0;
+  let cosSum = 0;
+  let totalWeight = 0;
 
   for (const hex of hexColors) {
     try {
-      const [h, s] = chroma(hex).hsl();
-      if (s > bestSat) {
-        bestSat = s;
-        bestHue = h ?? 0;
-      }
+      const [h, s, l] = chroma(hex).hsl();
+      if (h == null) continue;
+
+      const chroma_ = s * (1 - Math.abs(2 * l - 1));
+      const rad = (h * Math.PI) / 180;
+
+      sinSum += Math.sin(rad) * chroma_;
+      cosSum += Math.cos(rad) * chroma_;
+      totalWeight += chroma_;
     } catch {
       // skip invalid colors
     }
   }
 
-  return bestHue;
+  if (totalWeight === 0) return Math.random() * 360;
+
+  const meanRad = Math.atan2(sinSum / totalWeight, cosSum / totalWeight);
+  return ((meanRad * 180) / Math.PI + 360) % 360;
 }

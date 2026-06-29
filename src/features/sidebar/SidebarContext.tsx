@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useRef, useState } from "react";
 
 export enum SidebarPanel {
   EXTRACT = "extract",
@@ -20,6 +20,8 @@ type SidebarContextType = {
   toggle: (id: SidebarPanel) => void;
   isOpen: (id: SidebarPanel) => boolean;
   orderedOpenSidebars: SidebarPanel[];
+  registerResample: (fn: () => void) => void;
+  resample: () => void;
 };
 
 const SidebarContext = createContext<SidebarContextType | null>(null);
@@ -28,6 +30,14 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
   const [openSidebars, setOpenSidebars] = useState<Set<SidebarPanel>>(
     new Set(),
   );
+
+  const resampleRef = useRef<() => void>(() => {});
+
+  const registerResample = (fn: () => void) => {
+    resampleRef.current = fn;
+  };
+
+  const resample = () => resampleRef.current();
 
   const open = (id: SidebarPanel) =>
     setOpenSidebars((prev) => {
@@ -54,7 +64,15 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarContext.Provider
-      value={{ open, close, toggle, isOpen, orderedOpenSidebars }}
+      value={{
+        open,
+        close,
+        toggle,
+        isOpen,
+        orderedOpenSidebars,
+        registerResample,
+        resample,
+      }}
     >
       {children}
     </SidebarContext.Provider>

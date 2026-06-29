@@ -4,6 +4,7 @@ import { useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { useStore } from "zustand";
 import { usePaletteStore, slugFromBlocks } from "@/store/paletteStore";
+import { SidebarPanel, useSidebar } from "@/features/sidebar/SidebarContext";
 
 export default function PaletteInit() {
   const params = useParams();
@@ -13,6 +14,7 @@ export default function PaletteInit() {
   const hydrateFromSlug = usePaletteStore((s) => s.hydrateFromSlug);
   const blocks = usePaletteStore((s) => s.blocks);
   const { undo, redo } = useStore(usePaletteStore.temporal);
+  const { isOpen, resample } = useSidebar();
 
   useEffect(() => {
     if (slug) {
@@ -38,7 +40,16 @@ export default function PaletteInit() {
     (e: KeyboardEvent) => {
       if (e.code === "Space") {
         e.preventDefault();
-        regenerate();
+        if (isOpen(SidebarPanel.EXTRACT)) {
+          resample();
+        } else {
+          const { activeExtractedHexes } = usePaletteStore.getState();
+          regenerate(
+            activeExtractedHexes
+              ? { extractedHexes: activeExtractedHexes }
+              : undefined,
+          );
+        }
       }
       if ((e.metaKey || e.ctrlKey) && e.code === "KeyZ") {
         e.preventDefault();
@@ -46,7 +57,7 @@ export default function PaletteInit() {
         else undo();
       }
     },
-    [regenerate, undo, redo],
+    [regenerate, undo, redo, isOpen, resample],
   );
 
   useEffect(() => {
