@@ -1,12 +1,11 @@
 "use client";
 
 import { useEffect, useCallback } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useStore } from "zustand";
 import { usePaletteStore, slugFromBlocks } from "@/store/paletteStore";
 
 export default function PaletteInit() {
-  const router = useRouter();
   const params = useParams();
   const slug = params?.id as string | undefined;
 
@@ -21,8 +20,6 @@ export default function PaletteInit() {
       if (currentSlug !== slug) {
         hydrateFromSlug(slug);
       }
-    } else {
-      regenerate();
     }
     usePaletteStore.temporal.getState().clear();
   }, []);
@@ -33,7 +30,7 @@ export default function PaletteInit() {
     const newSlug = slugFromBlocks(blocks);
     const currentSlug = window.location.pathname.replace("/", "");
     if (newSlug !== currentSlug) {
-      router.replace(`/${newSlug}`);
+      window.history.replaceState(null, "", `/${newSlug}`);
     }
   }, [blocks]);
 
