@@ -8,6 +8,18 @@
   flex-direction: column;
   transform-origin: center;
 
+  &[data-tone="dark"] {
+    --toolbar-icon: rgba(255, 255, 255, 0.8);
+    --toolbar-icon-hover: rgba(255, 255, 255, 1);
+    --toolbar-btn-hover-bg: rgba(0, 0, 0, 0.2);
+  }
+
+  &[data-tone="light"] {
+    --toolbar-icon: rgba(0, 0, 0, 0.55);
+    --toolbar-icon-hover: rgba(0, 0, 0, 1);
+    --toolbar-btn-hover-bg: rgba(0, 0, 0, 0.08);
+  }
+
   &__button {
     will-change: transform, opacity;
     transition: background 0.1s ease;
@@ -20,7 +32,8 @@
 
     svg {
       display: block;
-      stroke: rgba(white, 0.8);
+      stroke: var(--toolbar-icon);
+      transition: stroke 0.1s ease;
     }
 
     &:active {
@@ -28,15 +41,10 @@
     }
 
     &:hover {
-      background: rgba(black, 0.2);
-      svg {
-        stroke: rgba(white, 1);
-      }
-    }
+      background: var(--toolbar-btn-hover-bg);
 
-    @for $i from 1 through 6 {
-      &:nth-child(#{$i}) {
-        transition-delay: #{$i * 0.07}s;
+      svg {
+        stroke: var(--toolbar-icon-hover);
       }
     }
   }
