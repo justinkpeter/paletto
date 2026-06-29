@@ -23,9 +23,9 @@
   &__button {
     will-change: transform, opacity;
     transition: background 0.1s ease;
-    padding: 8px;
+    padding: var(--space-2);
     cursor: pointer;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     display: flex;
     align-items: center;
     justify-content: center;

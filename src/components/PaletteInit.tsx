@@ -5,10 +5,12 @@ import { useParams } from "next/navigation";
 import { useStore } from "zustand";
 import { usePaletteStore, slugFromBlocks } from "@/store/paletteStore";
 import { SidebarPanel, useSidebar } from "@/features/sidebar/SidebarContext";
+import { useTheme } from "@/hooks/useTheme";
 
 export default function PaletteInit() {
   const params = useParams();
   const slug = params?.id as string | undefined;
+  const { theme, setTheme } = useTheme();
 
   const regenerate = usePaletteStore((s) => s.regenerate);
   const hydrateFromSlug = usePaletteStore((s) => s.hydrateFromSlug);

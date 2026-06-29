@@ -23,7 +23,17 @@ export default function RootLayout({
           <Navbar />
           <PaletteInit />
           {children}
-          <Toaster position="bottom-center" />
+          <Toaster
+            position="bottom-center"
+            toastOptions={{
+              style: {
+                background: "var(--bg-elevated)",
+                color: "var(--text-primary)",
+                border: "1px solid var(--border-default)",
+                boxShadow: "var(--shadow-md)",
+              },
+            }}
+          />
           <Footer />
         </SidebarProvider>
       </body>

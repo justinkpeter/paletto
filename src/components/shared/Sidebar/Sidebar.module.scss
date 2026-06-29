@@ -10,7 +10,7 @@ $sidebar-width: 280px;
   display: flex;
   flex-direction: column;
   will-change: width;
-  transition: width 280ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 280ms var(--ease-smooth);
   transform-origin: right;
   padding-top: 10.5rem;
 
@@ -29,26 +29,26 @@ $sidebar-width: 280px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1rem 1.125rem;
-    border-bottom: 1px solid #e4e4e0;
+    padding: var(--space-4) 1.125rem;
+    border-bottom: 1px solid var(--border-subtle);
     flex-shrink: 0;
 
     &-left {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      color: #555;
+      gap: var(--space-2);
+      color: var(--text-secondary);
     }
   }
 
   @include respond-to(md) {
-    padding-top: 4rem;
+    padding-top: var(--space-16);
   }
 
   &__title {
     font-size: 0.9375rem;
     font-weight: 500;
-    color: #1a1a1a;
+    color: var(--text-primary);
     letter-spacing: -0.01em;
   }
 
@@ -61,15 +61,15 @@ $sidebar-width: 280px;
     border: none;
     background: none;
     border-radius: 6px;
-    color: #aaa;
+    color: var(--text-muted);
     cursor: pointer;
     transition:
-      background 150ms ease,
-      color 150ms ease;
+      background var(--duration-fast) ease,
+      color var(--duration-fast) ease;
 
     &:hover {
-      background: #ebebeb;
-      color: #333;
+      background: var(--bg-base);
+      color: var(--text-primary);
     }
   }
 
@@ -77,27 +77,28 @@ $sidebar-width: 280px;
     flex: 1;
     overflow-y: auto;
     overflow-x: visible;
-    padding: 0.75rem;
+    padding: var(--space-3);
     scrollbar-width: thin;
     scrollbar-color: #ddd transparent;
+    padding-bottom: 4rem;
   }
 
   &__footer {
-    padding: 0.75rem 1.125rem;
-    border-top: 1px solid #e4e4e0;
+    padding: var(--space-3) 1.125rem;
+    border-top: 1px solid var(--border-subtle);
     flex-shrink: 0;
   }
 
   @include respond-to(md) {
-    position: static; // stays in flow, stacks vertically
-    width: 100dvw; // full width always
-    height: 0; // collapsed by default
+    position: static;
+    width: 100dvw;
+    height: 0;
     padding-top: 0;
     will-change: height;
-    transition: height 280ms cubic-bezier(0.4, 0, 0.2, 1); // 👈 height not width
-    background: #fff;
+    transition: height 280ms var(--ease-smooth);
+    background: var(--bg-elevated);
     box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.12);
-    flex-shrink: 0; // 👈 don't steal space from color blocks when collapsed
+    flex-shrink: 0;
 
     &--open {
       width: 100dvw;

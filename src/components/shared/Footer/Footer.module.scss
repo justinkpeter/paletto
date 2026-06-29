@@ -6,37 +6,67 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  padding: 2rem 2.5rem;
-  font-size: 14px;
-  color: rgba(black, 0.3);
+  padding: var(--space-8) 2.5rem;
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
   margin: auto;
   max-width: 2440px;
   z-index: 10;
   opacity: 0;
   transition: opacity 1.2s ease;
   animation: fadeIn 1.6s ease 0.4s forwards;
+  padding-bottom: 16px;
   user-select: none;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -10;
+    backdrop-filter: blur(8px);
+    mask-image:
+      linear-gradient(to bottom, transparent 0%, black 100%),
+      linear-gradient(
+        to right,
+        transparent 0%,
+        black 10%,
+        black 90%,
+        transparent 100%
+      );
+    -webkit-mask-image:
+      linear-gradient(to bottom, transparent 0%, black 100%),
+      linear-gradient(
+        to right,
+        transparent 0%,
+        black 10%,
+        black 90%,
+        transparent 100%
+      );
+    mask-composite: intersect;
+    -webkit-mask-composite: source-in;
+    pointer-events: none;
+  }
 }
 
 @mixin button() {
   box-shadow:
     rgba(179, 179, 179, 0.1) 0px 1px 0px inset,
-    rgba(102, 102, 102, 0.18) 0px 0px 0px 1px inset,
-    rgba(0, 0, 0, 0.05) 0px 1px 3px;
-  border: 1px solid rgba(black, 0.05);
+    var(--border-default) 0px 0px 0px 1px inset,
+    var(--shadow-sm);
+  border: 1px solid var(--border-subtle);
   border-radius: 20px;
   outline-color: transparent;
   background: none;
-  padding: 8px 12px;
-  color: rgba(black, 0.7);
+  padding: var(--space-2) var(--space-3);
+  color: var(--text-secondary);
   transition:
-    color 0.15s ease,
-    border-color 0.15s ease,
-    transform 0.15s ease;
+    color var(--duration-fast) ease,
+    border-color var(--duration-fast) ease,
+    transform var(--duration-fast) ease;
   cursor: pointer;
 
   &:hover {
-    border-color: rgba(black, 0.2);
+    border-color: var(--border-default);
   }
 
   &:active {
@@ -46,7 +76,7 @@
 
 .footer__share {
   @include button();
-  background: white;
+  background: var(--bg-elevated);
 }
 
 @keyframes fadeIn {

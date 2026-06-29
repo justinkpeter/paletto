@@ -2,7 +2,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: var(--space-1);
   height: 100dvh;
   width: 100dvw;
 
@@ -10,7 +10,7 @@
     display: flex;
     width: 100%;
     height: 620px;
-    gap: 8px;
+    gap: var(--space-2);
   }
 
   &__inner {
@@ -18,7 +18,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 300ms var(--ease-smooth);
     min-width: 0;
   }
 }

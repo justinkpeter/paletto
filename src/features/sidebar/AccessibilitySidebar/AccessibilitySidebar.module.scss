@@ -1,28 +1,26 @@
 .accessibility {
   &__section {
-    padding-bottom: 1.5rem;
+    padding-bottom: var(--space-6);
   }
 
   &__section-label {
     font-size: 0.625rem;
     font-weight: 600;
     letter-spacing: 0.08em;
-    color: var(--color-text-muted, #aaa);
+    color: var(--text-muted);
     margin: 0 0 0.875rem;
     text-transform: uppercase;
   }
 
-  // ---- Text contrast grid ----
-
   &__contrast-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
+    gap: var(--space-2);
   }
 
   &__contrast-card {
-    border-radius: 16px;
-    padding: 8px 8px 8px 12px;
+    border-radius: var(--radius-lg);
+    padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3);
     display: flex;
     flex-direction: column;
     aspect-ratio: 1.35;
@@ -35,7 +33,7 @@
   }
 
   &__aa-sample {
-    font-size: 1.5rem;
+    font-size: var(--font-size-2xl);
     font-weight: 700;
     line-height: 1;
     color: inherit;
@@ -46,7 +44,7 @@
     font-family: var(--font-mono, monospace);
     font-weight: 500;
     color: inherit;
-    margin-top: 0.5rem;
+    margin-top: var(--space-2);
     opacity: 0.9;
   }
 
@@ -58,14 +56,12 @@
     margin-top: 2px;
   }
 
-  // ---- Contrast badge (AA / AAA / fail) ----
-
   &__contrast-badge {
     font-size: 8px;
     font-weight: 700;
     letter-spacing: 0.05em;
-    padding: 3px 8px;
-    border-radius: 999px;
+    padding: 3px var(--space-2);
+    border-radius: var(--radius-full);
     color: inherit;
     white-space: nowrap;
     flex-shrink: 0;
@@ -76,31 +72,27 @@
     }
   }
 
-  // ---- Adjacent contrast list ----
-
   &__adjacent-list {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: var(--space-2);
   }
 
   &__adjacent-row {
     display: flex;
     align-items: center;
     gap: 0.875rem;
-    background: var(--color-surface-subtle, #f5f4f2);
-    border-radius: 999px;
-    padding: 0.5rem 0.875rem 0.5rem 0.5rem;
+    background: var(--bg-surface);
+    border-radius: var(--radius-full);
+    padding: var(--space-2) 0.875rem var(--space-2) var(--space-2);
   }
 
   &__adjacent-ratio {
     font-size: 0.8rem;
     font-weight: 500;
-    color: var(--color-text, #1a1a18);
+    color: var(--text-primary);
     text-align: right;
   }
-
-  // ---- Adjacent badge (warn / fail) ----
 
   &__adjacent-badge {
     width: 28px;
@@ -128,12 +120,10 @@
     }
   }
 
-  // ---- Half circle swatch ----
-
   &__half-circle {
-    flex: 1; // stretch to fill
-    height: 24px;
-    border-radius: 999px;
+    flex: 1;
+    height: var(--space-6);
+    border-radius: var(--radius-full);
     overflow: hidden;
     display: flex;
     flex-shrink: 0;
@@ -142,7 +132,7 @@
       flex: 1;
       height: 100%;
       display: block;
-      transition: flex 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: flex var(--duration-slow) var(--ease-smooth);
 
       &:hover {
         flex: 2;

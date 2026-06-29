@@ -13,21 +13,21 @@
   transform: translateX(-50%);
   background: rgba(black, 0.75);
   color: white;
-  font-size: 12px;
-  padding: 4px 8px;
-  border-radius: 4px;
+  font-size: var(--font-size-xs);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
   white-space: nowrap;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.15s ease;
+  transition: opacity var(--duration-fast) ease;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: var(--space-3);
   height: fit-content;
   min-height: 12px;
 
   .tooltip--bottom & {
-    top: calc(100% + 1rem);
+    top: calc(100% + var(--space-4));
   }
 }
 
@@ -37,5 +37,5 @@
 
 .tooltip__shortcut {
   color: rgba(white, 0.8);
-  font-size: 12px;
+  font-size: var(--font-size-xs);
 }
