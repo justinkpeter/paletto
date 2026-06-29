@@ -22,8 +22,8 @@ type VisionMode =
 type ContrastLevel = "AA" | "AAA" | "fail";
 
 interface ContrastResult {
-  originalHex: string; // for display
-  simulatedHex: string; // for background + contrast math
+  originalHex: string;
+  simulatedHex: string;
   ratio: number;
   level: ContrastLevel;
 }
@@ -92,7 +92,6 @@ function contrastLevel(ratio: number): ContrastLevel {
   return "fail";
 }
 
-// Vision simulation matrices (applied in linearized sRGB)
 const VISION_MATRICES: Record<VisionMode, number[]> = {
   normal: [1, 0, 0, 0, 1, 0, 0, 0, 1],
   protanopia: [0.567, 0.433, 0, 0.558, 0.442, 0, 0, 0.242, 0.758],
@@ -164,34 +163,43 @@ function adjacentContrastResults(
 function ContrastBadge({
   level,
   textColor,
+  className,
 }: {
   level: ContrastLevel;
   textColor: string;
+  className: string;
 }) {
   return (
     <span
-      className={styles["contrast-badge"]}
+      className={className}
       data-level={level}
       aria-label={`WCAG ${level}`}
-      style={{
-        color: textColor,
-        borderColor: textColor,
-        border: `1px solid ${textColor}`,
-        borderRadius: "8px",
-        fontSize: "10px",
-        padding: "3px 8px",
-      }}
+      style={{ color: textColor, border: `1px solid ${textColor}` }}
     >
       {level === "fail" ? "fail" : level}
     </span>
   );
 }
 
-function AdjacentBadge({ pass, warn }: { pass: boolean; warn: boolean }) {
-  if (pass) return null;
+function AdjacentBadge({
+  pass,
+  warn,
+  className,
+}: {
+  pass: boolean;
+  warn: boolean;
+  className: string;
+}) {
+  if (pass) {
+    return (
+      <span className={className} data-state="pass" aria-label="Contrast pass">
+        ✓
+      </span>
+    );
+  }
   return (
     <span
-      className={styles["adjacent-badge"]}
+      className={className}
       data-warn={warn}
       aria-label={warn ? "Low contrast warning" : "Contrast fail"}
     >
@@ -200,9 +208,17 @@ function AdjacentBadge({ pass, warn }: { pass: boolean; warn: boolean }) {
   );
 }
 
-function HalfCircle({ hexA, hexB }: { hexA: string; hexB: string }) {
+function HalfCircle({
+  hexA,
+  hexB,
+  className,
+}: {
+  hexA: string;
+  hexB: string;
+  className: string;
+}) {
   return (
-    <span className={styles["half-circle"]} aria-hidden="true">
+    <span className={className} aria-hidden="true">
       <span style={{ background: hexA }} />
       <span style={{ background: hexB }} />
     </span>
@@ -259,7 +275,7 @@ export default function AccessibilitySidebar() {
               <div
                 key={i}
                 className={bem.element("contrast-card")}
-                style={{ background: simulatedHex }} // simulated color as bg
+                style={{ background: simulatedHex }}
               >
                 <div className={bem.element("contrast-card-top")}>
                   <span
@@ -268,13 +284,17 @@ export default function AccessibilitySidebar() {
                   >
                     Aa
                   </span>
-                  <ContrastBadge level={level} textColor={textColor} />
+                  <ContrastBadge
+                    level={level}
+                    textColor={textColor}
+                    className={bem.element("contrast-badge")}
+                  />
                 </div>
                 <span
                   className={bem.element("contrast-hex")}
                   style={{ color: textColor }}
                 >
-                  {originalHex} {/* always show original hex */}
+                  {originalHex}
                 </span>
                 <span
                   className={bem.element("contrast-ratio")}
@@ -294,11 +314,19 @@ export default function AccessibilitySidebar() {
         <div className={bem.element("adjacent-list")}>
           {adjacentResults.map(({ hexA, hexB, ratio, pass, warn }, i) => (
             <div key={i} className={bem.element("adjacent-row")}>
-              <HalfCircle hexA={hexA.split("#")[0]} hexB={hexB} />
+              <HalfCircle
+                hexA={hexA}
+                hexB={hexB}
+                className={bem.element("half-circle")}
+              />
               <span className={bem.element("adjacent-ratio")}>
                 {ratio.toFixed(1)}:1
               </span>
-              <AdjacentBadge pass={pass} warn={warn} />
+              <AdjacentBadge
+                pass={pass}
+                warn={warn}
+                className={bem.element("adjacent-badge")}
+              />
             </div>
           ))}
         </div>
