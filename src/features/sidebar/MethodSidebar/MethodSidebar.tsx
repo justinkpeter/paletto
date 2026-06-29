@@ -9,7 +9,7 @@ import {
   Mood,
   MOOD_OPTIONS,
   SCHEME_OPTIONS,
-} from "@/components/shared/Hero/colorUtils";
+} from "@/features/palette/colorUtils";
 import { SidebarPanel, useSidebar } from "@/features/sidebar/SidebarContext";
 import styles from "./MethodSidebar.module.scss";
 import Sidebar from "@/components/shared/Sidebar/Sidebar";

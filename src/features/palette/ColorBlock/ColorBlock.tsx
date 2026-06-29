@@ -1,6 +1,6 @@
 import chroma from "chroma-js";
 import styles from "./ColorBlock.module.scss";
-import Toolbar from "./Toolbar";
+import Toolbar from "../Toolbar/Toolbar";
 import { BemBuilder } from "@/lib/BemBuilder";
 import { LockIcon } from "lucide-react";
 

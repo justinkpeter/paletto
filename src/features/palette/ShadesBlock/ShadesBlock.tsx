@@ -1,4 +1,4 @@
-import { generateShades } from "@/components/shared/Hero/colorUtils";
+import { generateShades } from "@/features/palette/colorUtils";
 import { XIcon } from "lucide-react";
 import chroma from "chroma-js";
 import styles from "./ShadesBlock.module.scss";

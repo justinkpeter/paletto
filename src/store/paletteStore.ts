@@ -6,7 +6,7 @@ import {
   ColorScheme,
   Mood,
   VisionMode,
-} from "@/components/shared/Hero/colorUtils";
+} from "@/features/palette/colorUtils";
 
 const MIN_BLOCKS = 2;
 const MAX_BLOCKS = 8;

@@ -1,5 +1,5 @@
 import AccessibilitySidebar from "./AccessibilitySidebar/AccessibilitySidebar";
-import ExtractSidebar from "./ExtractSidebar/ExtractSidebar";
+import ExtractSidebar from "../extract/ExtractSidebar/ExtractSidebar";
 import MethodSidebar from "./MethodSidebar/MethodSidebar";
 import { SIDEBAR_ORDER, SidebarPanel } from "./SidebarContext";
 

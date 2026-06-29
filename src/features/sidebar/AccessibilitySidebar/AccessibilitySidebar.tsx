@@ -8,7 +8,7 @@ import { SidebarPanel, useSidebar } from "@/features/sidebar/SidebarContext";
 import styles from "./AccessibilitySidebar.module.scss";
 import Sidebar from "@/components/shared/Sidebar/Sidebar";
 import OptionGroup from "@/components/ui/input/OptionGroup";
-import { SelectOption } from "@/components/shared/Hero/colorUtils";
+import { SelectOption } from "@/features/palette/colorUtils";
 
 // ---- Types ----------------------------------------------------------------
 

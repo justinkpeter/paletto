@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { generatePalette } from "@/components/shared/Hero/colorUtils";
+import { generatePalette } from "@/features/palette/colorUtils";
 
 export default function RootPage() {
   const colors = generatePalette("analogous", "any", true, 5);
