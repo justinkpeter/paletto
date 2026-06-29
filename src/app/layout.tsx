@@ -4,6 +4,7 @@ import Navbar from "@/components/shared/Navbar/Navbar";
 import PaletteInit from "@/components/PaletteInit";
 import { SidebarProvider } from "@/features/sidebar/SidebarContext";
 import { Toaster } from "sonner";
+import Footer from "@/components/shared/Footer/Footer";
 
 export const metadata: Metadata = {
   title: "Paletto | Color Palette Generator",
@@ -23,6 +24,7 @@ export default function RootLayout({
           <PaletteInit />
           {children}
           <Toaster position="bottom-center" />
+          <Footer />
         </SidebarProvider>
       </body>
     </html>
