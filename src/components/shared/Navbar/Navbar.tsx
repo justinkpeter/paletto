@@ -1,101 +1,98 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
-import type { User } from "@supabase/supabase-js";
-import styles from "./Navbar.module.scss";
-import { MoonIcon, SunIcon } from "@/components/ui/Icon";
+import Link from "next/link";
+import styles from "./NewNavbar.module.scss";
+import Tooltip from "../Tooltip/Tooltip";
+import {
+  EyeIcon,
+  ImagePlusIcon,
+  PaletteIcon,
+  Redo2Icon,
+  Undo2Icon,
+} from "lucide-react";
+import { usePalette } from "@/hooks/usePalette";
+import { BemBuilder } from "@/lib/BemBuilder";
+import { SidebarPanel, useSidebar } from "@/features/sidebar/SidebarContext";
 
 export default function Navbar() {
-  const [theme, setTheme] = useState<"light" | "dark">(() => {
-    if (typeof window === "undefined") return "light";
-    return (
-      (localStorage.getItem("paletto-theme") as "light" | "dark") || "light"
-    );
-  });
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { undo, redo, canUndo, canRedo, regenerate } = usePalette();
+  const { isOpen, toggle } = useSidebar();
 
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-  }, [theme]);
+  const isMac = /Mac|iPhone|iPad|iPod/.test(navigator.platform);
 
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user);
-      setLoading(false);
-    });
-
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setUser(session?.user ?? null);
-      },
-    );
-
-    return () => listener.subscription.unsubscribe();
-  }, []);
-
-  const toggleTheme = () => {
-    const next = theme === "light" ? "dark" : "light";
-    setTheme(next);
-    localStorage.setItem("paletto-theme", next);
-  };
-
-  const handleSignIn = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-        queryParams: {
-          prompt: "select_account",
-        },
-      },
-    });
-  };
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-  };
+  const bem = new BemBuilder("navbar", styles);
 
   return (
-    <nav className={styles.navbar}>
-      <div className={styles.inner}>
-        <span className={styles.wordmark}>Paletto</span>
-
-        <div className={styles.actions}>
-          <button
-            className={styles.themeToggle}
-            onClick={toggleTheme}
-            aria-label="Toggle theme"
-          >
-            {theme === "light" ? <MoonIcon /> : <SunIcon />}
-          </button>
-
-          {!loading && (
-            <>
-              {user ? (
-                <div className={styles.userArea}>
-                  {user.user_metadata?.avatar_url && (
-                    <img
-                      src={user.user_metadata.avatar_url}
-                      alt="Avatar"
-                      className={styles.avatar}
-                    />
-                  )}
-                  <a href="/palettes" className={styles.palettesLink}>
-                    Your palettes
-                  </a>
-                  <button className={styles.signOut} onClick={handleSignOut}>
-                    Sign out
-                  </button>
-                </div>
-              ) : (
-                <button className={styles.signIn} onClick={handleSignIn}>
-                  Sign in
-                </button>
-              )}
-            </>
-          )}
+    <nav className={bem.block()}>
+      <div className={bem.element("left")}>
+        <Link href="/" className={bem.element("wordMark")}>
+          Paletto
+        </Link>
+        <Tooltip text="Generate" shortcut={"spacebar"}>
+          <div className={bem.element("spaceBarWrapper")}>
+            <span className={bem.element("spaceBarWrapper", "desktopHint")}>
+              Press
+              <div className={styles.spaceBar}>spacebar</div>
+              to generate
+            </span>
+            <span
+              className={bem.element("spaceBarWrapper", "mobileHint")}
+              onClick={() => regenerate()}
+            >
+              Tap to generate
+            </span>
+          </div>
+        </Tooltip>
+      </div>
+      <div className={bem.element("right")}>
+        <div className={bem.element("historyButtons")}>
+          <Tooltip text="Undo" shortcut={isMac ? "⌘ + z" : "Ctrl+Z"}>
+            <button
+              className={bem.element("button")}
+              onClick={() => undo()}
+              disabled={!canUndo}
+              title={"Undo"}
+            >
+              <Undo2Icon />
+            </button>
+          </Tooltip>
+          <Tooltip text="Redo" shortcut={isMac ? "⌘ + shift + z" : "Ctrl+Y"}>
+            <button
+              className={bem.element("button")}
+              onClick={() => redo()}
+              disabled={!canRedo}
+              title={"Redo"}
+            >
+              <Redo2Icon />
+            </button>
+          </Tooltip>
+        </div>
+        <div className={bem.element("divider")} />
+        <div className={bem.element("actionButtons")}>
+          <Tooltip text="Extract colors from image">
+            <button
+              onClick={() => toggle(SidebarPanel.EXTRACT)}
+              className={`${styles.iconBtn} ${isOpen(SidebarPanel.EXTRACT) ? styles.active : ""} ${bem.element("button")}`}
+            >
+              <ImagePlusIcon />
+            </button>
+          </Tooltip>
+          <Tooltip text="Edit color schemes">
+            <button
+              onClick={() => toggle(SidebarPanel.METHOD)}
+              className={`${styles.iconBtn} ${isOpen(SidebarPanel.METHOD) ? styles.active : ""} ${bem.element("button")}`}
+            >
+              <PaletteIcon />
+            </button>
+          </Tooltip>
+          <Tooltip text="Check accessibility">
+            <button
+              onClick={() => toggle(SidebarPanel.ACCESSIBILITY)}
+              className={`${styles.iconBtn} ${isOpen(SidebarPanel.ACCESSIBILITY) ? styles.active : ""} ${bem.element("button")}`}
+            >
+              <EyeIcon />
+            </button>
+          </Tooltip>
         </div>
       </div>
     </nav>
