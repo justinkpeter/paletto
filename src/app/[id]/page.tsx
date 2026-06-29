@@ -14,7 +14,7 @@ import SortableBlock from "@/components/shared/Hero/SortableBlock";
 import ShadesBlock from "@/components/shared/Hero/ShadesBlock";
 import SidebarMap from "@/features/sidebar/SidebarMap";
 import { useRemoveBlock } from "@/components/shared/Hero/useRemoveBlock";
-import NewExportBar from "@/features/extract/NewExportBar";
+import ExportBar from "@/features/extract/ExportBar";
 
 export default function Home() {
   const {
@@ -83,7 +83,7 @@ export default function Home() {
         </DragDropProvider>
       </div>
       <SidebarMap />
-      <NewExportBar />
+      <ExportBar />
     </div>
   );
 }
