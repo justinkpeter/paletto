@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import styles from "./Navbar.module.scss";
-import Tooltip from "../Tooltip/Tooltip";
+import Tooltip from "../../ui/Tooltip/Tooltip";
 import {
   EyeIcon,
   ImagePlusIcon,
