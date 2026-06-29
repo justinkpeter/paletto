@@ -69,7 +69,7 @@ export default function Navbar() {
         </div>
         <div className={bem.element("divider")} />
         <div className={bem.element("actionButtons")}>
-          <Tooltip text="Extract colors from image">
+          <Tooltip text="Upload Image">
             <button
               onClick={() => toggle(SidebarPanel.EXTRACT)}
               className={`${styles.iconBtn} ${isOpen(SidebarPanel.EXTRACT) ? styles.active : ""} ${bem.element("button")}`}
