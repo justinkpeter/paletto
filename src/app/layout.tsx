@@ -31,6 +31,7 @@ export default function RootLayout({
                 color: "var(--text-primary)",
                 border: "1px solid var(--border-default)",
                 boxShadow: "var(--shadow-md)",
+                // bottom: "10vh",
               },
             }}
           />

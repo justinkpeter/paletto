@@ -1,3 +1,5 @@
+@use "@/styles/mixins" as *;
+
 .footer {
   position: fixed;
   bottom: 0;
@@ -10,7 +12,6 @@
   font-size: var(--font-size-sm);
   color: var(--text-muted);
   margin: auto;
-  max-width: 2440px;
   z-index: 10;
   opacity: 0;
   transition: opacity 1.2s ease;
@@ -45,6 +46,10 @@
     mask-composite: intersect;
     -webkit-mask-composite: source-in;
     pointer-events: none;
+  }
+
+  @include respond-to(lg) {
+    display: none;
   }
 }
 
